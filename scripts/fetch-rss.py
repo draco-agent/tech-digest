@@ -37,6 +37,8 @@ MAX_WORKERS = 10
 MAX_ARTICLES_PER_FEED = 20
 RETRY_COUNT = 1
 RETRY_DELAY = 2.0  # seconds
+RSS_CACHE_PATH = "/tmp/tech-digest-rss-cache.json"
+RSS_CACHE_TTL_HOURS = 24
 
 
 def setup_logging(verbose: bool) -> logging.Logger:
@@ -207,8 +209,45 @@ def parse_feed(content: str, cutoff: datetime, feed_url: str) -> List[Dict[str, 
     return parse_feed_regex(content, cutoff, feed_url)
 
 
-def fetch_feed_with_retry(source: Dict[str, Any], cutoff: datetime) -> Dict[str, Any]:
-    """Fetch RSS feed with retry mechanism."""
+def _load_rss_cache() -> Dict[str, Any]:
+    """Load RSS ETag/Last-Modified cache."""
+    try:
+        with open(RSS_CACHE_PATH, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _save_rss_cache(cache: Dict[str, Any]) -> None:
+    """Save RSS ETag/Last-Modified cache."""
+    try:
+        with open(RSS_CACHE_PATH, 'w') as f:
+            json.dump(cache, f)
+    except Exception as e:
+        logging.warning(f"Failed to save RSS cache: {e}")
+
+
+# Module-level cache, loaded once per run
+_rss_cache: Optional[Dict[str, Any]] = None
+_rss_cache_dirty = False
+
+
+def _get_rss_cache(no_cache: bool = False) -> Dict[str, Any]:
+    global _rss_cache
+    if _rss_cache is None:
+        _rss_cache = {} if no_cache else _load_rss_cache()
+    return _rss_cache
+
+
+def _flush_rss_cache() -> None:
+    global _rss_cache_dirty
+    if _rss_cache_dirty and _rss_cache is not None:
+        _save_rss_cache(_rss_cache)
+        _rss_cache_dirty = False
+
+
+def fetch_feed_with_retry(source: Dict[str, Any], cutoff: datetime, no_cache: bool = False) -> Dict[str, Any]:
+    """Fetch RSS feed with retry mechanism and conditional requests."""
     source_id = source["id"]
     name = source["name"]
     url = source["url"]
@@ -217,10 +256,50 @@ def fetch_feed_with_retry(source: Dict[str, Any], cutoff: datetime) -> Dict[str,
     
     for attempt in range(RETRY_COUNT + 1):
         try:
-            req = Request(url, headers={"User-Agent": "TechDigest/2.0"})
-            with urlopen(req, timeout=TIMEOUT) as resp:
-                final_url = resp.url if hasattr(resp, 'url') else url
-                content = resp.read().decode("utf-8", errors="replace")
+            global _rss_cache_dirty
+            req_headers = {"User-Agent": "TechDigest/2.0"}
+            
+            # Add conditional headers from cache
+            cache = _get_rss_cache(no_cache)
+            cache_entry = cache.get(url)
+            now = time.time()
+            ttl_seconds = RSS_CACHE_TTL_HOURS * 3600
+            
+            if cache_entry and not no_cache and (now - cache_entry.get("ts", 0)) < ttl_seconds:
+                if cache_entry.get("etag"):
+                    req_headers["If-None-Match"] = cache_entry["etag"]
+                if cache_entry.get("last_modified"):
+                    req_headers["If-Modified-Since"] = cache_entry["last_modified"]
+            
+            req = Request(url, headers=req_headers)
+            try:
+                with urlopen(req, timeout=TIMEOUT) as resp:
+                    # Update cache with response headers
+                    etag = resp.headers.get("ETag")
+                    last_mod = resp.headers.get("Last-Modified")
+                    if etag or last_mod:
+                        cache[url] = {"etag": etag, "last_modified": last_mod, "ts": now}
+                        _rss_cache_dirty = True
+                    
+                    final_url = resp.url if hasattr(resp, 'url') else url
+                    content = resp.read().decode("utf-8", errors="replace")
+            except URLError as e:
+                if hasattr(e, 'code') and e.code == 304:
+                    logging.info(f"⏭ {name}: not modified (304)")
+                    return {
+                        "source_id": source_id,
+                        "source_type": "rss",
+                        "name": name,
+                        "url": url,
+                        "priority": priority,
+                        "topics": topics,
+                        "status": "ok",
+                        "attempts": attempt + 1,
+                        "not_modified": True,
+                        "count": 0,
+                        "articles": [],
+                    }
+                raise
                 
             articles = parse_feed(content, cutoff, final_url)
             
@@ -334,6 +413,12 @@ Examples:
         help="Enable verbose logging"
     )
     
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Bypass ETag/Last-Modified conditional request cache"
+    )
+    
     args = parser.parse_args()
     logger = setup_logging(args.verbose)
     
@@ -364,9 +449,12 @@ Examples:
         else:
             logger.info("feedparser not available, using regex parsing")
         
+        # Initialize cache
+        _get_rss_cache(no_cache=args.no_cache)
+        
         results = []
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-            futures = {pool.submit(fetch_feed_with_retry, source, cutoff): source 
+            futures = {pool.submit(fetch_feed_with_retry, source, cutoff, args.no_cache): source 
                       for source in sources}
             
             for future in as_completed(futures):
@@ -378,6 +466,9 @@ Examples:
                 else:
                     logger.debug(f"❌ {result['name']}: {result['error']}")
 
+        # Flush conditional request cache
+        _flush_rss_cache()
+        
         # Sort: priority first, then by article count
         results.sort(key=lambda x: (not x.get("priority", False), -x.get("count", 0)))
 

@@ -33,6 +33,8 @@ MAX_WORKERS = 5  # Lower for API rate limits
 RETRY_COUNT = 1
 RETRY_DELAY = 2.0
 MAX_TWEETS_PER_USER = 10
+ID_CACHE_PATH = "/tmp/tech-digest-twitter-id-cache.json"
+ID_CACHE_TTL_DAYS = 7
 
 # Twitter API v2 endpoints
 API_BASE = "https://api.x.com/2"
@@ -82,7 +84,95 @@ def clean_tweet_text(text: str) -> str:
     return text
 
 
-def fetch_user_tweets(source: Dict[str, Any], bearer_token: str, cutoff: datetime) -> Dict[str, Any]:
+def load_id_cache() -> Dict[str, Any]:
+    """Load the username→ID cache from disk."""
+    try:
+        with open(ID_CACHE_PATH, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def save_id_cache(cache: Dict[str, Any]) -> None:
+    """Save the username→ID cache to disk."""
+    try:
+        with open(ID_CACHE_PATH, 'w') as f:
+            json.dump(cache, f)
+    except Exception as e:
+        logging.warning(f"Failed to save ID cache: {e}")
+
+
+def batch_resolve_user_ids(handles: List[str], bearer_token: str, no_cache: bool = False) -> Dict[str, str]:
+    """Batch resolve Twitter usernames to user IDs with caching.
+    
+    Returns a dict mapping lowercase handle → user_id.
+    """
+    now = time.time()
+    cache = {} if no_cache else load_id_cache()
+    ttl_seconds = ID_CACHE_TTL_DAYS * 86400
+    
+    # Check cache for each handle
+    result = {}
+    to_resolve = []
+    for handle in handles:
+        key = handle.lower()
+        entry = cache.get(key)
+        if entry and (now - entry.get("ts", 0)) < ttl_seconds:
+            result[key] = entry["id"]
+        else:
+            to_resolve.append(handle)
+    
+    if to_resolve:
+        logging.info(f"Batch resolving {len(to_resolve)} usernames (cached: {len(result)})")
+        # Twitter API supports up to 100 usernames per request
+        for i in range(0, len(to_resolve), 100):
+            batch = to_resolve[i:i+100]
+            url = f"{USER_LOOKUP_ENDPOINT}?{urlencode({'usernames': ','.join(batch)})}"
+            headers = {
+                "Authorization": f"Bearer {bearer_token}",
+                "User-Agent": "TechDigest/2.0"
+            }
+            try:
+                req = Request(url, headers=headers)
+                with urlopen(req, timeout=TIMEOUT) as resp:
+                    data = json.loads(resp.read().decode())
+                
+                if 'data' in data:
+                    for user in data['data']:
+                        key = user['username'].lower()
+                        result[key] = user['id']
+                        cache[key] = {"id": user['id'], "ts": now}
+                        
+                # Log errors for users not found
+                if 'errors' in data:
+                    for err in data['errors']:
+                        logging.warning(f"User lookup error: {err.get('detail', err)}")
+                        
+            except Exception as e:
+                logging.error(f"Batch user lookup failed: {e}")
+                # Fall back to individual lookups for this batch
+                for handle in batch:
+                    try:
+                        fallback_url = f"{USER_LOOKUP_ENDPOINT}?{urlencode({'usernames': handle})}"
+                        req = Request(fallback_url, headers=headers)
+                        with urlopen(req, timeout=TIMEOUT) as resp:
+                            fallback_data = json.loads(resp.read().decode())
+                        if 'data' in fallback_data and fallback_data['data']:
+                            key = handle.lower()
+                            result[key] = fallback_data['data'][0]['id']
+                            cache[key] = {"id": result[key], "ts": now}
+                    except Exception as e2:
+                        logging.warning(f"Individual lookup failed for @{handle}: {e2}")
+        
+        if not no_cache:
+            save_id_cache(cache)
+    else:
+        logging.info(f"All {len(result)} usernames resolved from cache")
+    
+    return result
+
+
+def fetch_user_tweets(source: Dict[str, Any], bearer_token: str, cutoff: datetime, user_id: Optional[str] = None) -> Dict[str, Any]:
     """Fetch recent tweets for a Twitter user."""
     source_id = source["id"]
     name = source["name"] 
@@ -100,21 +190,27 @@ def fetch_user_tweets(source: Dict[str, Any], bearer_token: str, cutoff: datetim
                 "user.fields": "verified,public_metrics"
             }
             
-            # First get user ID
-            user_url = f"{USER_LOOKUP_ENDPOINT}?{urlencode({'usernames': handle})}"
+            if not user_id:
+                # Fallback: resolve individually if no pre-resolved ID
+                user_url = f"{USER_LOOKUP_ENDPOINT}?{urlencode({'usernames': handle})}"
+                headers = {
+                    "Authorization": f"Bearer {bearer_token}",
+                    "User-Agent": "TechDigest/2.0"
+                }
+                
+                req = Request(user_url, headers=headers)
+                with urlopen(req, timeout=TIMEOUT) as resp:
+                    user_data = json.loads(resp.read().decode())
+                    
+                if 'data' not in user_data or not user_data['data']:
+                    raise ValueError(f"User not found: {handle}")
+                    
+                user_id = user_data['data'][0]['id']
+            
             headers = {
                 "Authorization": f"Bearer {bearer_token}",
                 "User-Agent": "TechDigest/2.0"
             }
-            
-            req = Request(user_url, headers=headers)
-            with urlopen(req, timeout=TIMEOUT) as resp:
-                user_data = json.loads(resp.read().decode())
-                
-            if 'data' not in user_data or not user_data['data']:
-                raise ValueError(f"User not found: {handle}")
-                
-            user_id = user_data['data'][0]['id']
             
             # Then get user tweets
             tweets_url = f"{API_BASE}/users/{user_id}/tweets?{urlencode(params)}"
@@ -264,6 +360,12 @@ Examples:
         help="Enable verbose logging"
     )
     
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Bypass username→ID cache"
+    )
+    
     args = parser.parse_args()
     logger = setup_logging(args.verbose)
     
@@ -294,10 +396,17 @@ Examples:
             
         logger.info(f"Fetching {len(sources)} Twitter accounts (window: {args.hours}h)")
         
+        # Batch resolve all usernames to IDs
+        all_handles = [s["handle"].lstrip('@') for s in sources]
+        user_id_map = batch_resolve_user_ids(all_handles, bearer_token, no_cache=args.no_cache)
+        
         results = []
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-            futures = {pool.submit(fetch_user_tweets, source, bearer_token, cutoff): source 
-                      for source in sources}
+            futures = {}
+            for source in sources:
+                handle = source["handle"].lstrip('@')
+                resolved_id = user_id_map.get(handle.lower())
+                futures[pool.submit(fetch_user_tweets, source, bearer_token, cutoff, resolved_id)] = source
             
             for future in as_completed(futures):
                 result = future.result()

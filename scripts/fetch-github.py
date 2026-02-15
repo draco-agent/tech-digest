@@ -29,6 +29,8 @@ MAX_WORKERS = 10
 MAX_RELEASES_PER_REPO = 20
 RETRY_COUNT = 2
 RETRY_DELAY = 2.0  # seconds
+GITHUB_CACHE_PATH = "/tmp/tech-digest-github-cache.json"
+GITHUB_CACHE_TTL_HOURS = 24
 
 
 def setup_logging(verbose: bool) -> logging.Logger:
@@ -98,8 +100,44 @@ def get_repo_name(repo: str) -> str:
     return repo.split('/')[-1] if '/' in repo else repo
 
 
-def fetch_releases_with_retry(source: Dict[str, Any], cutoff: datetime, github_token: Optional[str] = None) -> Dict[str, Any]:
-    """Fetch GitHub releases with retry mechanism."""
+def _load_github_cache() -> Dict[str, Any]:
+    """Load GitHub ETag/Last-Modified cache."""
+    try:
+        with open(GITHUB_CACHE_PATH, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def _save_github_cache(cache: Dict[str, Any]) -> None:
+    """Save GitHub ETag/Last-Modified cache."""
+    try:
+        with open(GITHUB_CACHE_PATH, 'w') as f:
+            json.dump(cache, f)
+    except Exception as e:
+        logging.warning(f"Failed to save GitHub cache: {e}")
+
+
+_github_cache: Optional[Dict[str, Any]] = None
+_github_cache_dirty = False
+
+
+def _get_github_cache(no_cache: bool = False) -> Dict[str, Any]:
+    global _github_cache
+    if _github_cache is None:
+        _github_cache = {} if no_cache else _load_github_cache()
+    return _github_cache
+
+
+def _flush_github_cache() -> None:
+    global _github_cache_dirty
+    if _github_cache_dirty and _github_cache is not None:
+        _save_github_cache(_github_cache)
+        _github_cache_dirty = False
+
+
+def fetch_releases_with_retry(source: Dict[str, Any], cutoff: datetime, github_token: Optional[str] = None, no_cache: bool = False) -> Dict[str, Any]:
+    """Fetch GitHub releases with retry mechanism and conditional requests."""
     source_id = source["id"]
     name = source["name"]
     repo = source["repo"]
@@ -117,15 +155,53 @@ def fetch_releases_with_retry(source: Dict[str, Any], cutoff: datetime, github_t
     if github_token:
         headers["Authorization"] = f"token {github_token}"
     
+    # Add conditional headers from cache
+    global _github_cache_dirty
+    cache = _get_github_cache(no_cache)
+    cache_entry = cache.get(api_url)
+    now = time.time()
+    ttl_seconds = GITHUB_CACHE_TTL_HOURS * 3600
+    
+    if cache_entry and not no_cache and (now - cache_entry.get("ts", 0)) < ttl_seconds:
+        if cache_entry.get("etag"):
+            headers["If-None-Match"] = cache_entry["etag"]
+        if cache_entry.get("last_modified"):
+            headers["If-Modified-Since"] = cache_entry["last_modified"]
+    
     for attempt in range(RETRY_COUNT + 1):
         try:
             req = Request(api_url, headers=headers)
-            with urlopen(req, timeout=TIMEOUT) as resp:
-                if resp.status != 200:
-                    raise HTTPError(resp.url, resp.status, f"HTTP {resp.status}", resp.headers, None)
-                
-                content = resp.read().decode("utf-8", errors="replace")
-                releases_data = json.loads(content)
+            try:
+                with urlopen(req, timeout=TIMEOUT) as resp:
+                    if resp.status != 200:
+                        raise HTTPError(resp.url, resp.status, f"HTTP {resp.status}", resp.headers, None)
+                    
+                    # Update cache
+                    etag = resp.headers.get("ETag")
+                    last_mod = resp.headers.get("Last-Modified")
+                    if etag or last_mod:
+                        cache[api_url] = {"etag": etag, "last_modified": last_mod, "ts": now}
+                        _github_cache_dirty = True
+                    
+                    content = resp.read().decode("utf-8", errors="replace")
+                    releases_data = json.loads(content)
+            except HTTPError as e:
+                if e.code == 304:
+                    logging.info(f"⏭ {name}: not modified (304)")
+                    return {
+                        "source_id": source_id,
+                        "source_type": "github",
+                        "name": name,
+                        "repo": repo,
+                        "priority": priority,
+                        "topics": topics,
+                        "status": "ok",
+                        "attempts": attempt + 1,
+                        "not_modified": True,
+                        "count": 0,
+                        "articles": [],
+                    }
+                raise
             
             articles = []
             for release in releases_data[:MAX_RELEASES_PER_REPO]:
@@ -271,6 +347,12 @@ Environment Variables:
         help="Enable verbose logging"
     )
     
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Bypass ETag/Last-Modified conditional request cache"
+    )
+    
     args = parser.parse_args()
     logger = setup_logging(args.verbose)
     
@@ -300,11 +382,14 @@ Environment Variables:
         if github_token:
             logger.debug("Using GitHub token for authentication")
         else:
-            logger.info("No GITHUB_TOKEN found, using unauthenticated requests (lower rate limit)")
+            logger.warning("Warning: No GITHUB_TOKEN — rate limit is 60 req/hour. Set GITHUB_TOKEN env var for 5000 req/hour.")
+        
+        # Initialize cache
+        _get_github_cache(no_cache=args.no_cache)
         
         results = []
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-            futures = {pool.submit(fetch_releases_with_retry, source, cutoff, github_token): source 
+            futures = {pool.submit(fetch_releases_with_retry, source, cutoff, github_token, args.no_cache): source 
                       for source in sources}
             
             for future in as_completed(futures):
@@ -316,6 +401,9 @@ Environment Variables:
                 else:
                     logger.debug(f"❌ {result['name']}: {result['error']}")
 
+        # Flush conditional request cache
+        _flush_github_cache()
+        
         # Sort: priority first, then by release count
         results.sort(key=lambda x: (not x.get("priority", False), -x.get("count", 0)))
 

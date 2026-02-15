@@ -123,35 +123,93 @@ def calculate_base_score(article: Dict[str, Any], source: Dict[str, Any]) -> flo
     return score
 
 
+def _extract_tokens(title: str) -> Set[str]:
+    """Extract significant tokens from a normalized title for bucketing."""
+    norm = normalize_title(title)
+    # Split into tokens, filter short/common words
+    stopwords = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'in', 'on', 'at',
+                 'to', 'for', 'of', 'and', 'or', 'with', 'by', 'from', 'as', 'it',
+                 'its', 'that', 'this', 'be', 'has', 'had', 'have', 'not', 'but',
+                 'what', 'how', 'new', 'will', 'can', 'do', 'does', 'did'}
+    tokens = set()
+    for word in norm.split():
+        if len(word) >= 3 and word not in stopwords:
+            tokens.add(word)
+    return tokens
+
+
+def _build_token_buckets(articles: List[Dict[str, Any]]) -> Dict[int, Set[int]]:
+    """Build token-based buckets mapping each article index to candidate duplicate indices.
+    
+    Two articles are candidates if they share 2+ significant tokens.
+    Returns dict: article_index -> set of candidate article indices to compare against.
+    """
+    from collections import defaultdict
+    
+    # token -> list of article indices
+    token_to_indices: Dict[str, List[int]] = defaultdict(list)
+    article_tokens: List[Set[str]] = []
+    
+    for i, article in enumerate(articles):
+        tokens = _extract_tokens(article.get("title", ""))
+        article_tokens.append(tokens)
+        for token in tokens:
+            token_to_indices[token].append(i)
+    
+    # For each article, find candidates sharing 2+ tokens
+    candidates: Dict[int, Set[int]] = defaultdict(set)
+    for i, tokens in enumerate(article_tokens):
+        # Count how many tokens each other article shares with this one
+        overlap_count: Dict[int, int] = defaultdict(int)
+        for token in tokens:
+            for j in token_to_indices[token]:
+                if j != i:
+                    overlap_count[j] += 1
+        for j, count in overlap_count.items():
+            if count >= 2:
+                candidates[i].add(j)
+    
+    return candidates
+
+
 def deduplicate_articles(articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Remove duplicate articles based on title similarity and domain."""
+    """Remove duplicate articles based on title similarity and domain.
+    
+    Uses token-based bucketing to avoid O(n²) SequenceMatcher comparisons.
+    Only articles sharing 2+ significant title tokens are compared.
+    """
     if not articles:
         return articles
         
     deduplicated = []
-    seen_titles = []
     domain_counts = {}
     
     # Sort by quality score (highest first) to keep best versions
     articles.sort(key=lambda x: x.get("quality_score", 0), reverse=True)
     
-    for article in articles:
+    # Build token buckets for candidate pairs
+    candidates = _build_token_buckets(articles)
+    
+    # Track which indices have been marked as duplicates
+    duplicate_indices: Set[int] = set()
+    
+    for i, article in enumerate(articles):
+        if i in duplicate_indices:
+            article["quality_score"] = article.get("quality_score", 0) + PENALTY_DUPLICATE
+            continue
+        
         title = article.get("title", "")
         url = article.get("link", "")
         domain = get_domain(url)
         
-        # Check title similarity against existing articles
-        is_duplicate = False
-        for seen_title in seen_titles:
-            similarity = calculate_title_similarity(title, seen_title)
-            if similarity >= TITLE_SIMILARITY_THRESHOLD:
-                logging.debug(f"Title duplicate: '{title}' ~= '{seen_title}' ({similarity:.2f})")
-                is_duplicate = True
-                break
-                
-        if is_duplicate:
-            article["quality_score"] = article.get("quality_score", 0) + PENALTY_DUPLICATE
-            continue
+        # Mark future candidates as duplicates using SequenceMatcher (only within bucket)
+        for j in candidates.get(i, set()):
+            if j > i and j not in duplicate_indices:
+                other_title = articles[j].get("title", "")
+                similarity = calculate_title_similarity(title, other_title)
+                if similarity >= TITLE_SIMILARITY_THRESHOLD:
+                    logging.debug(f"Title duplicate: '{other_title}' ~= '{title}' ({similarity:.2f})")
+                    duplicate_indices.add(j)
             
         # Check domain saturation (too many articles from same domain)
         if domain:
@@ -161,7 +219,6 @@ def deduplicate_articles(articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]
                 continue
             domain_counts[domain] = domain_count + 1
             
-        seen_titles.append(title)
         deduplicated.append(article)
         
     logging.info(f"Deduplication: {len(articles)} → {len(deduplicated)} articles")
