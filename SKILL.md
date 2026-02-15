@@ -263,17 +263,70 @@ export BRAVE_API_KEY="your_brave_search_api_key"  # Optional
 - **Twitter**: Read-only bearer token, pay-per-use pricing
 - **Brave Search**: Optional, fallback to agent web_search if unavailable
 
-## Cron Integration
+## Cron / Scheduled Task Integration
 
-Daily digest example:
-```bash
-# Run at 7:00 AM daily
-0 7 * * * cd /path/to/tech-digest && ./scripts/daily-digest.sh
+### OpenClaw Cron (Recommended)
+
+The cron prompt should **NOT** hardcode the pipeline steps. Instead, reference `references/digest-prompt.md` and only pass configuration parameters. This ensures the pipeline logic stays in the skill repo and is consistent across all installations.
+
+#### Daily Digest Cron Prompt
+```
+读取 <SKILL_DIR>/references/digest-prompt.md，按照其中的完整流程生成日报。
+
+用以下参数替换占位符：
+- MODE = daily
+- TIME_WINDOW = past 1-2 days
+- FRESHNESS = pd
+- RSS_HOURS = 48
+- ITEMS_PER_SECTION = 3-5
+- BLOG_PICKS_COUNT = 2-3
+- EXTRA_SECTIONS = （无）
+- SUBJECT = Daily Tech Digest - YYYY-MM-DD
+- WORKSPACE = <your workspace path>
+- SKILL_DIR = <your skill install path>
+- DISCORD_CHANNEL_ID = <your channel id>
+- EMAIL = （optional）
+- LANGUAGE = Chinese
+- TEMPLATE = discord
+
+严格按 prompt 模板中的步骤执行，不要跳过任何步骤。
 ```
 
-Weekly digest example:
+#### Weekly Digest Cron Prompt
+```
+读取 <SKILL_DIR>/references/digest-prompt.md，按照其中的完整流程生成周报。
+
+用以下参数替换占位符：
+- MODE = weekly
+- TIME_WINDOW = past 7 days
+- FRESHNESS = pw
+- RSS_HOURS = 168
+- ITEMS_PER_SECTION = 5-8
+- BLOG_PICKS_COUNT = 3-5
+- EXTRA_SECTIONS = 📊 Weekly Trend Summary (2-3 sentences summarizing macro trends)
+- SUBJECT = Weekly Tech Digest - YYYY-MM-DD
+- WORKSPACE = <your workspace path>
+- SKILL_DIR = <your skill install path>
+- DISCORD_CHANNEL_ID = <your channel id>
+- EMAIL = （optional）
+- LANGUAGE = Chinese
+- TEMPLATE = discord
+
+严格按 prompt 模板中的步骤执行，不要跳过任何步骤。
+```
+
+#### Why This Pattern?
+- **Single source of truth**: Pipeline logic lives in `digest-prompt.md`, not scattered across cron configs
+- **Portable**: Same skill on different OpenClaw instances, just change paths and channel IDs
+- **Maintainable**: Update the skill → all cron jobs pick up changes automatically
+- **Anti-pattern**: Do NOT copy pipeline steps into the cron prompt — it will drift out of sync
+
+### Shell Cron (Alternative)
 ```bash
-# Run at 7:00 AM every Monday
+# Daily at 7:00 AM
+0 7 * * * cd /path/to/tech-digest && ./scripts/daily-digest.sh
+
+# Weekly at 7:00 AM every Monday
 0 7 * * 1 cd /path/to/tech-digest && ./scripts/weekly-digest.sh
 ```
 
