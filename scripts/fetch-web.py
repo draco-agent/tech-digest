@@ -69,7 +69,6 @@ def search_brave(query: str, api_key: str, freshness: Optional[str] = None) -> D
     url = f"{BRAVE_API_BASE}?{urlencode(params)}"
     headers = {
         'Accept': 'application/json',
-        'Accept-Encoding': 'gzip',
         'X-Subscription-Token': api_key,
         'User-Agent': 'TechDigest/2.0'
     }
@@ -77,7 +76,12 @@ def search_brave(query: str, api_key: str, freshness: Optional[str] = None) -> D
     try:
         req = Request(url, headers=headers)
         with urlopen(req, timeout=TIMEOUT) as resp:
-            data = json.loads(resp.read().decode())
+            raw = resp.read()
+            # Handle gzip if server sends it anyway
+            if raw[:2] == b'\x1f\x8b':
+                import gzip
+                raw = gzip.decompress(raw)
+            data = json.loads(raw.decode())
             
         results = []
         if 'web' in data and 'results' in data['web']:
@@ -109,13 +113,13 @@ def search_brave(query: str, api_key: str, freshness: Optional[str] = None) -> D
 def filter_content(text: str, must_include: List[str], exclude: List[str]) -> bool:
     """Check if content matches inclusion/exclusion criteria."""
     text_lower = text.lower()
-    
+
     # Check must_include (any match)
     if must_include:
         has_required = any(keyword.lower() in text_lower for keyword in must_include)
         if not has_required:
             return False
-    
+
     # Check exclude (any match disqualifies)
     if exclude:
         has_excluded = any(keyword.lower() in text_lower for keyword in exclude)
