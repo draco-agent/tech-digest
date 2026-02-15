@@ -152,9 +152,11 @@ Save the report to `<WORKSPACE>/archive/tech-digest/<MODE>-YYYY-MM-DD.md`
 ## Delivery
 1. Send to Discord channel `<DISCORD_CHANNEL_ID>` via `message` tool
 2. *(Optional)* Send email to `<EMAIL>` via `gog` CLI
-   - Subject must be a plain text string with no shell metacharacters
-   - Use format: `gog gmail send --to '<EMAIL>' --subject 'Daily Tech Digest - YYYY-MM-DD'`
-   - Do NOT interpolate untrusted content into the subject or other shell arguments
+   - **Must use `--body-html`** for proper rendering (plain text markdown looks bad in email clients)
+   - Generate HTML email body following `<SKILL_DIR>/references/templates/email.md` format (inline styles, max-width 640px, system fonts)
+   - Use format: `gog gmail send --to '<EMAIL>' --subject '<SUBJECT>' --body-html '<HTML>'`
+   - Subject must be plain text with no shell metacharacters
+   - Do NOT interpolate untrusted content into shell arguments
 
 If any delivery fails, log the error but continue with remaining channels.
 
