@@ -672,6 +672,326 @@
       "priority": false,
       "topics": ["frontier-tech"],
       "note": "Microsoft CEO"
+    },
+    {
+      "id": "mit-tech-review-rss",
+      "type": "rss",
+      "name": "MIT Technology Review",
+      "url": "https://www.technologyreview.com/feed",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "ai-agent", "frontier-tech"],
+      "note": "AI policy + deep analysis"
+    },
+    {
+      "id": "venturebeat-ai-rss",
+      "type": "rss",
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm", "ai-agent"],
+      "note": "AI industry news"
+    },
+    {
+      "id": "bensbites-rss",
+      "type": "rss",
+      "name": "Ben's Bites",
+      "url": "https://bensbites.beehiiv.com/feed",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "ai-agent"],
+      "note": "Top AI newsletter, daily updates"
+    },
+    {
+      "id": "rundown-ai-rss",
+      "type": "rss",
+      "name": "The Rundown AI",
+      "url": "https://www.therundown.ai/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm", "ai-agent", "frontier-tech"],
+      "note": "Million-subscriber AI newsletter"
+    },
+    {
+      "id": "404media-rss",
+      "type": "rss",
+      "name": "404 Media",
+      "url": "https://www.404media.co/rss",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Independent tech investigative journalism"
+    },
+    {
+      "id": "aisnakeoil-rss",
+      "type": "rss",
+      "name": "AI Snake Oil",
+      "url": "https://aisnakeoil.substack.com/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm", "frontier-tech"],
+      "note": "Princeton professor, critical AI perspective"
+    },
+    {
+      "id": "bytebytego-rss",
+      "type": "rss",
+      "name": "ByteByteGo",
+      "url": "https://blog.bytebytego.com/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "System design + engineering by Alex Xu"
+    },
+    {
+      "id": "stability-rss",
+      "type": "rss",
+      "name": "Stability AI Blog",
+      "url": "https://stability.ai/blog?format=rss",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm"],
+      "note": "Open-source AI models"
+    },
+    {
+      "id": "nvidia-ai-rss",
+      "type": "rss",
+      "name": "NVIDIA AI Blog",
+      "url": "https://blogs.nvidia.com/feed/",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "frontier-tech"],
+      "note": "GPU/AI infrastructure"
+    },
+    {
+      "id": "deepmind-rss",
+      "type": "rss",
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "frontier-tech"],
+      "note": "Frontier AI research"
+    },
+    {
+      "id": "meta-ai-rss",
+      "type": "rss",
+      "name": "Meta AI Blog",
+      "url": "https://ai.meta.com/blog/rss/",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "ai-agent"],
+      "note": "Llama series + open source"
+    },
+    {
+      "id": "producthunt-rss",
+      "type": "rss",
+      "name": "Product Hunt",
+      "url": "https://www.producthunt.com/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "New product discovery, AI tools"
+    },
+    {
+      "id": "messari-rss",
+      "type": "rss",
+      "name": "Messari",
+      "url": "https://messari.io/rss",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "Crypto research reports"
+    },
+    {
+      "id": "defiant-rss",
+      "type": "rss",
+      "name": "The Defiant",
+      "url": "https://thedefiant.io/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "DeFi professional media"
+    },
+    {
+      "id": "bankless-rss",
+      "type": "rss",
+      "name": "Bankless",
+      "url": "https://www.bankless.com/rss",
+      "enabled": true,
+      "priority": true,
+      "topics": ["crypto"],
+      "note": "Top Web3 newsletter"
+    },
+    {
+      "id": "rekt-rss",
+      "type": "rss",
+      "name": "Rekt News",
+      "url": "https://rekt.news/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "Security incident analysis"
+    },
+    {
+      "id": "ifanr-rss",
+      "type": "rss",
+      "name": "爱范儿",
+      "url": "https://www.ifanr.com/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Chinese tech product reviews"
+    },
+    {
+      "id": "sspai-rss",
+      "type": "rss",
+      "name": "少数派",
+      "url": "https://sspai.com/feed",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Chinese productivity + tech depth"
+    },
+    {
+      "id": "wired-rss",
+      "type": "rss",
+      "name": "Wired",
+      "url": "https://www.wired.com/feed/rss",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Tech culture deep reporting"
+    },
+    {
+      "id": "ieee-spectrum-rss",
+      "type": "rss",
+      "name": "IEEE Spectrum",
+      "url": "https://spectrum.ieee.org/feeds/feed.rss",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Engineering + frontier tech authority"
+    },
+    {
+      "id": "rowancheung-twitter",
+      "type": "twitter",
+      "name": "Rowan Cheung (The Rundown AI)",
+      "handle": "rowancheung",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "ai-agent"],
+      "note": "AI newsletter founder, 567K followers"
+    },
+    {
+      "id": "yudkowsky-twitter",
+      "type": "twitter",
+      "name": "Eliezer Yudkowsky",
+      "handle": "ESYudkowsky",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm", "frontier-tech"],
+      "note": "AI safety pioneer"
+    },
+    {
+      "id": "demis-twitter",
+      "type": "twitter",
+      "name": "Demis Hassabis (DeepMind CEO)",
+      "handle": "demaborhm",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "frontier-tech"],
+      "note": "DeepMind CEO, Nobel laureate"
+    },
+    {
+      "id": "dario-twitter",
+      "type": "twitter",
+      "name": "Dario Amodei (Anthropic CEO)",
+      "handle": "DarioAmodei",
+      "enabled": true,
+      "priority": true,
+      "topics": ["llm", "ai-agent"],
+      "note": "Anthropic CEO"
+    },
+    {
+      "id": "hwchase-twitter",
+      "type": "twitter",
+      "name": "Harrison Chase (LangChain)",
+      "handle": "hwchase17",
+      "enabled": true,
+      "priority": true,
+      "topics": ["ai-agent"],
+      "note": "LangChain founder, Agent ecosystem"
+    },
+    {
+      "id": "swyx-twitter",
+      "type": "twitter",
+      "name": "Swyx",
+      "handle": "swyx",
+      "enabled": true,
+      "priority": false,
+      "topics": ["llm", "ai-agent"],
+      "note": "AI Engineer community, Latent Space podcast"
+    },
+    {
+      "id": "erikbryn-twitter",
+      "type": "twitter",
+      "name": "Erik Brynjolfsson",
+      "handle": "erikbryn",
+      "enabled": true,
+      "priority": false,
+      "topics": ["frontier-tech"],
+      "note": "Stanford Digital Economy Lab"
+    },
+    {
+      "id": "balaji-twitter",
+      "type": "twitter",
+      "name": "Balaji Srinivasan",
+      "handle": "balaji",
+      "enabled": true,
+      "priority": true,
+      "topics": ["crypto", "frontier-tech"],
+      "note": "Former Coinbase CTO, macro thinker"
+    },
+    {
+      "id": "cobie-twitter",
+      "type": "twitter",
+      "name": "Cobie",
+      "handle": "cobie",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "Influential independent crypto analyst"
+    },
+    {
+      "id": "hsaka-twitter",
+      "type": "twitter",
+      "name": "Hsaka",
+      "handle": "HsakaTrades",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "Crypto trading analysis"
+    },
+    {
+      "id": "cochran-twitter",
+      "type": "twitter",
+      "name": "Adam Cochran",
+      "handle": "adamscochran",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "Cinneamhain Ventures, on-chain analysis"
+    },
+    {
+      "id": "lcermak-twitter",
+      "type": "twitter",
+      "name": "Larry Cermak",
+      "handle": "lawmaster",
+      "enabled": true,
+      "priority": false,
+      "topics": ["crypto"],
+      "note": "The Block research director"
     }
   ]
 }
