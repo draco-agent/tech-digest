@@ -200,10 +200,11 @@ Place custom configs in `workspace/config/` to override defaults:
 - Technical details section
 - Expandable sections support
 
-## Default Sources (65 total)
+## Default Sources (118 total)
 
-- **RSS Feeds (32)**: AI labs, tech blogs, crypto news, Chinese tech media
-- **Twitter/X KOLs (29)**: AI researchers, crypto leaders, tech executives  
+- **RSS Feeds (55, 46 enabled)**: AI labs, tech blogs, crypto news, Chinese tech media
+- **Twitter/X KOLs (44)**: AI researchers, crypto leaders, tech executives
+- **GitHub Repos (19)**: Major open-source projects (LangChain, vLLM, Foundry, etc.)
 - **Web Search (4 topics)**: LLM, AI Agent, Crypto, Frontier Tech
 
 All sources pre-configured with appropriate topic tags and priority levels.
