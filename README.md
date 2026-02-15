@@ -2,7 +2,7 @@
 
 > **Automated tech news digest system with unified source model, quality scoring, and multi-format output.**
 
-Generate comprehensive tech digests by aggregating content from RSS feeds, Twitter/X KOLs, and web search, with intelligent deduplication, quality scoring, and template-based output for Discord, email, or markdown.
+Generate comprehensive tech digests by aggregating content from RSS feeds, Twitter/X KOLs, GitHub releases, and web search, with intelligent deduplication, quality scoring, and template-based output for Discord, email, or markdown.
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -10,7 +10,7 @@ Generate comprehensive tech digests by aggregating content from RSS feeds, Twitt
 ## ✨ Features
 
 ### 🔄 Unified Data Pipeline
-- **Multi-Source Collection**: RSS feeds, Twitter/X API, web search
+- **Multi-Source Collection**: RSS feeds, Twitter/X API, GitHub releases, web search
 - **Parallel Processing**: Concurrent fetching with retry mechanisms
 - **Quality Scoring**: Multi-source detection, priority weighting, engagement metrics
 - **Smart Deduplication**: Title similarity detection and domain saturation limits

@@ -30,6 +30,7 @@ Automated tech news digest system with unified data source model, quality scorin
 2. **Environment Variables**: 
    - `X_BEARER_TOKEN` - Twitter API bearer token (optional)
    - `BRAVE_API_KEY` - Brave Search API key (optional)
+   - `GITHUB_TOKEN` - GitHub personal access token (optional, improves rate limits)
 
 3. **Generate Digest**:
    ```bash
@@ -37,7 +38,8 @@ Automated tech news digest system with unified data source model, quality scorin
    python3 scripts/fetch-rss.py --config workspace/config
    python3 scripts/fetch-twitter.py --config workspace/config  
    python3 scripts/fetch-web.py --config workspace/config
-   python3 scripts/merge-sources.py --rss rss.json --twitter twitter.json --web web.json
+   python3 scripts/fetch-github.py --config workspace/config
+   python3 scripts/merge-sources.py --rss rss.json --twitter twitter.json --web web.json --github github.json
    ```
 
 4. **Use Templates**: Apply Discord, email, or markdown templates to merged output
