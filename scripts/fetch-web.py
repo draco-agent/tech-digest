@@ -298,9 +298,13 @@ Examples:
         if api_key:
             logger.info(f"Using Brave Search API for {len(topics)} topics")
             
-            # Convert freshness to hours for API
-            freshness_hours = int(args.freshness.rstrip('h'))
-            brave_freshness = convert_freshness(freshness_hours)
+            # Convert freshness to Brave API format
+            # Accept both Brave native (pd/pw/pm/py) and hour-based (24h/48h/168h)
+            if args.freshness in ('pd', 'pw', 'pm', 'py'):
+                brave_freshness = args.freshness
+            else:
+                freshness_hours = int(args.freshness.rstrip('h'))
+                brave_freshness = convert_freshness(freshness_hours)
             
             results = []
             for topic in topics:
