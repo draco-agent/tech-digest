@@ -28,14 +28,24 @@
 
 ## 🚀 快速开始
 
-### 1. 安装
+### 安装
+
+#### 通过 ClawHub（即将上线）
 ```bash
-git clone https://github.com/your-org/tech-digest
-cd tech-digest
-pip install -r requirements.txt  # 可选：feedparser, jsonschema
+clawhub install tech-digest
 ```
 
-### 2. 配置
+#### 通过 GitHub（正式发布前推荐）
+```bash
+# OpenClaw skill 安装
+cd ~/.openclaw/workspace/skills
+git clone https://github.com/draco-hoard/tech-digest.git
+
+# 可选 Python 依赖
+pip install -r tech-digest/requirements.txt
+```
+
+### 1. 配置
 ```bash
 # 复制默认配置到工作区进行自定义
 mkdir -p workspace/config
@@ -309,7 +319,7 @@ python3 scripts/fetch-rss.py --verbose --hours 1
 
 ### 开发环境设置
 ```bash
-git clone https://github.com/your-org/tech-digest
+git clone https://github.com/draco-hoard/tech-digest
 cd tech-digest
 
 # 安装开发依赖

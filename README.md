@@ -26,16 +26,26 @@ Generate comprehensive tech digests by aggregating content from RSS feeds, Twitt
 - **Email**: Rich metadata, technical stats, and executive summaries
 - **Markdown**: GitHub-compatible tables and expandable sections
 
-## 🚀 Quick Start
+## 📦 Installation
 
-### 1. Installation
+### Via ClawHub (coming soon)
 ```bash
-git clone https://github.com/your-org/tech-digest
-cd tech-digest
-pip install -r requirements.txt  # Optional: feedparser, jsonschema
+clawhub install tech-digest
 ```
 
-### 2. Configuration
+### Via GitHub (recommended before official release)
+```bash
+# OpenClaw skill install
+cd ~/.openclaw/workspace/skills
+git clone https://github.com/draco-hoard/tech-digest.git
+
+# Optional Python dependencies
+pip install -r tech-digest/requirements.txt
+```
+
+## 🚀 Quick Start
+
+### 1. Configuration
 ```bash
 # Copy default configs to workspace for customization
 mkdir -p workspace/config
@@ -47,7 +57,7 @@ export X_BEARER_TOKEN="your_twitter_bearer_token"
 export BRAVE_API_KEY="your_brave_search_api_key"
 ```
 
-### 3. Generate Digest
+### 2. Generate Digest
 ```bash
 # Fetch from all sources
 python3 scripts/fetch-rss.py --config workspace/config --hours 48
@@ -65,7 +75,7 @@ python3 scripts/merge-sources.py \
 # Use digest.json with references/templates/discord.md
 ```
 
-### 4. Validate Configuration
+### 3. Validate Configuration
 ```bash
 python3 scripts/validate-config.py --config-dir workspace/config --verbose
 ```
@@ -309,7 +319,7 @@ python3 scripts/fetch-rss.py --verbose --hours 1
 
 ### Development Setup
 ```bash
-git clone https://github.com/your-org/tech-digest
+git clone https://github.com/draco-hoard/tech-digest
 cd tech-digest
 
 # Install development dependencies  
