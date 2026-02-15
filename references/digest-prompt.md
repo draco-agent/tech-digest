@@ -138,6 +138,14 @@ Use sections defined in `topics.json`. Each topic has:
 - **<ITEMS_PER_SECTION> items per section**
 - **Use bullet lists, no markdown tables** (Discord compatibility)
 
+### Data Source Stats Footer
+At the end of the report, append a stats line showing raw data collected from each pipeline step. Read the counts from the merged JSON's `input_sources` field or from each step's output. Format:
+
+```
+---
+📊 数据源统计：RSS {{rss_count}} 篇 | Twitter {{twitter_count}} 条 | Web {{web_count}} 篇 | GitHub {{github_count}} 个 release | 合并去重后 {{merged_count}} 篇
+```
+
 ## Archive
 Save the report to `<WORKSPACE>/archive/tech-digest/<MODE>-YYYY-MM-DD.md`
 
