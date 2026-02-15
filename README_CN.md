@@ -1,4 +1,4 @@
-# Tech Digest
+# Tech News Digest
 
 > 自动化科技资讯汇总 — 109 个数据源，4 层管道，一句话安装。
 
@@ -67,7 +67,7 @@ export GITHUB_TOKEN="..."      # GitHub API（可选，提高速率限制）
 
 ## 📂 仓库地址
 
-**GitHub**: [github.com/draco-agent/tech-digest](https://github.com/draco-agent/tech-digest)
+**GitHub**: [github.com/draco-agent/tech-news-digest](https://github.com/draco-agent/tech-news-digest)
 
 ## 📄 开源协议
 

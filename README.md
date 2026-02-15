@@ -1,4 +1,4 @@
-# Tech Digest
+# Tech News Digest
 
 > Automated tech news digest — 109 sources, 4-layer pipeline, one chat message to install.
 
@@ -67,7 +67,7 @@ export GITHUB_TOKEN="..."      # GitHub API (optional, higher rate limits)
 
 ## 📂 Repository
 
-**GitHub**: [github.com/draco-agent/tech-digest](https://github.com/draco-agent/tech-digest)
+**GitHub**: [github.com/draco-agent/tech-news-digest](https://github.com/draco-agent/tech-news-digest)
 
 ## 📄 License
 
