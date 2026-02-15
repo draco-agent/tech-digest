@@ -168,7 +168,7 @@ Write the report in <LANGUAGE>.
 Before running the pipeline, optionally validate configuration:
 ```bash
 python3 <SKILL_DIR>/scripts/validate-config.py \
-  --config-dir <WORKSPACE>/config \
-  --defaults-dir <SKILL_DIR>/config/defaults \
+  --config <WORKSPACE>/config \
+  --defaults <SKILL_DIR>/config/defaults \
   --verbose
 ```

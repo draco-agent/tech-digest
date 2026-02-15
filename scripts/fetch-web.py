@@ -317,11 +317,19 @@ Examples:
             logger.info(f"Using Brave Search API for {len(topics)} topics")
             
             # Convert freshness to Brave API format
-            # Accept both Brave native (pd/pw/pm/py) and hour-based (24h/48h/168h)
+            # Accept both Brave native (pd/pw/pm/py) and human-friendly (24h/48h/1w/1m)
             if args.freshness in ('pd', 'pw', 'pm', 'py'):
                 brave_freshness = args.freshness
             else:
-                freshness_hours = int(args.freshness.rstrip('h'))
+                freshness_map = {'1w': 168, '1m': 720, '1y': 8760}
+                if args.freshness in freshness_map:
+                    freshness_hours = freshness_map[args.freshness]
+                else:
+                    try:
+                        freshness_hours = int(args.freshness.rstrip('h'))
+                    except ValueError:
+                        logger.warning(f"Unrecognized freshness format '{args.freshness}', defaulting to 48h")
+                        freshness_hours = 48
                 brave_freshness = convert_freshness(freshness_hours)
             
             results = []
