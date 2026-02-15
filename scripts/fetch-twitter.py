@@ -38,7 +38,6 @@ ID_CACHE_TTL_DAYS = 7
 
 # Twitter API v2 endpoints
 API_BASE = "https://api.x.com/2"
-USER_TWEETS_ENDPOINT = f"{API_BASE}/users/by/username/{{username}}/tweets"
 USER_LOOKUP_ENDPOINT = f"{API_BASE}/users/by"
 
 
