@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.8.0
+
+- **Tweet Metrics Display**: KOL entries show `👁|💬|🔁|❤️` engagement stats wrapped in inline code to prevent emoji enlargement on Discord
+- **Standardized Metrics Format**: Fixed 4-metric order, show 0 for missing values, one tweet per bullet with own URL
+- **10 New Sources (119 total)**: Ben's Bites, The Decoder, a16z Crypto, Bankless (RSS); @ClementDelangue, @GregBrockman, @zuck (Twitter); MCP Servers, DeepSeek-V3, Meta Llama (GitHub)
+
 ## v2.7.0
 
 - **Tweet Engagement Metrics**: KOL Updates now display 👁 views, 💬 replies, 🔁 retweets, ❤️ likes from Twitter public_metrics across all templates (Discord, Email, Telegram)
