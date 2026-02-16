@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.2.0
+
+- **Unified English Templates**: All prompt instructions, section titles, stats footer, and example content standardized to English. Output language controlled by `<LANGUAGE>` placeholder at runtime.
+
 ## v3.1.0
 
 - **Executive Summary**: 2-4 sentence overview of top stories at the beginning of each digest
