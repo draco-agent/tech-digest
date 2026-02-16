@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.3.0
+
+- **RSS Domain Validation**: New `expected_domains` field in sources.json rejects articles from unexpected origins (applied to anthropic-rss mirror)
+- **Email Shell Safety**: HTML body written to temp file before CLI delivery; subjects restricted to static format strings
+- **Discord Embed Suppression**: Footer links wrapped in `<>` to prevent preview embeds
+
 ## v3.2.1
 
 - **Mandatory Reddit Execution**: Agent explicitly required to run `fetch-reddit.py` script — cannot skip or generate fake output
