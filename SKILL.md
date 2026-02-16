@@ -377,3 +377,18 @@ All scripts support `--verbose` flag for detailed logging and troubleshooting.
 - **Parallel Workers**: Adjust `MAX_WORKERS` in scripts for your system
 - **Timeout Settings**: Increase `TIMEOUT` for slow networks
 - **Article Limits**: Adjust `MAX_ARTICLES_PER_FEED` based on needs
+## Security Considerations
+
+### Shell Execution
+The digest prompt instructs agents to run Python scripts via shell commands. All script paths and arguments are skill-defined constants — no user input is interpolated into commands. Scripts themselves contain no subprocess/os.system calls.
+
+### Third-Party RSS Sources
+One RSS source (`anthropic-rss`) uses a community-maintained GitHub mirror since Anthropic has no official RSS feed. Users should be aware of supply chain risks from third-party mirrors. The source is clearly annotated in `sources.json`.
+
+### Input Sanitization
+- URL resolution rejects non-HTTP(S) schemes (javascript:, data:, etc.)
+- RSS fallback parsing uses simple, non-backtracking regex patterns (no ReDoS risk)
+- All fetched content is treated as untrusted data for display only
+
+### Network Access
+Scripts make outbound HTTP requests to configured RSS feeds, Twitter API, GitHub API, and Brave Search API. No inbound connections or listeners are created.

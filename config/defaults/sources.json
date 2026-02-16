@@ -62,6 +62,7 @@
       "type": "rss",
       "name": "Anthropic Blog",
       "url": "https://raw.githubusercontent.com/Olshansk/rss-feeds/refs/heads/main/feeds/feed_anthropic.xml",
+      "note": "Community-maintained mirror (Anthropic has no official RSS). Verify content against anthropic.com.",
       "enabled": true,
       "priority": true,
       "topics": [

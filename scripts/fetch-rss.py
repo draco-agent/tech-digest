@@ -105,12 +105,15 @@ def get_tag(xml: str, tag: str) -> str:
 
 
 def resolve_link(link: str, base_url: str) -> str:
-    """Resolve relative links against the feed URL."""
+    """Resolve relative links against the feed URL. Rejects non-HTTP(S) schemes."""
     if not link:
         return link
     if link.startswith(("http://", "https://")):
         return link
-    return urljoin(base_url, link)
+    resolved = urljoin(base_url, link)
+    if not resolved.startswith(("http://", "https://")):
+        return ""  # reject javascript:, data:, etc.
+    return resolved
 
 
 def parse_feed_feedparser(content: str, cutoff: datetime, feed_url: str) -> List[Dict[str, Any]]:
