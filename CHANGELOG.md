@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.2.1
+
+- **Mandatory Reddit Execution**: Agent explicitly required to run `fetch-reddit.py` script — cannot skip or generate fake output
+
 ## v3.2.0
 
 - **Unified English Templates**: All prompt instructions, section titles, stats footer, and example content standardized to English. Output language controlled by `<LANGUAGE>` placeholder at runtime.
