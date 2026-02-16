@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.0.0
+
+- **Reddit Data Source**: New `fetch-reddit.py` script — 5th data layer using Reddit's public JSON API (no auth required). 13 subreddits: r/MachineLearning, r/LocalLLaMA, r/CryptoCurrency, r/artificial, r/ethereum, r/ChatGPT, r/singularity, r/OpenAI, r/Bitcoin, r/programming, r/Anthropic, r/defi, r/ExperiencedDevs
+- **Reddit Score Bonus**: Posts with score > 500 get +5, > 200 get +3, > 100 get +1 in quality scoring
+- **10 New Non-Reddit Sources**: Ben's Bites, The Decoder, a16z Crypto, Bankless (RSS); @ClementDelangue, @GregBrockman, @zuck (Twitter); MCP Servers, DeepSeek-V3, Meta Llama (GitHub)
+- **Tweet Engagement Metrics**: KOL entries display `👁|💬|🔁|❤️` stats in inline code blocks across all templates
+- **Date Timezone Fix**: Report date explicitly provided via `<DATE>` placeholder, preventing UTC/local mismatch
+- **Mandatory Links**: KOL Updates and Twitter/X Trending sections require source URLs for every entry
+- **Graceful Twitter Degradation**: Missing `X_BEARER_TOKEN` outputs empty JSON instead of failing
+- **URL Sanitization**: `resolve_link()` rejects non-HTTP(S) schemes
+- **Security Documentation**: Added Security Considerations section to SKILL.md
+- **Total Sources**: 132 (50 RSS + 47 Twitter + 22 GitHub + 13 Reddit + 4 web search topics)
+
 ## v2.8.1
 
 - **Metrics Data Fix**: Agent now required to read actual `metrics` values from Twitter JSON data instead of defaulting to 0

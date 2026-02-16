@@ -1,7 +1,7 @@
 ---
 name: tech-news-digest
-description: Generate tech news digests with unified source model, quality scoring, and multi-format output. Four-layer data collection from RSS feeds, Twitter/X KOLs, GitHub releases, and web search. Pipeline-based scripts with retry mechanisms and deduplication. Supports Discord, email, and markdown templates.
-version: "2.8.1"
+description: Generate tech news digests with unified source model, quality scoring, and multi-format output. Five-layer data collection from RSS feeds, Twitter/X KOLs, GitHub releases, Reddit, and web search. Pipeline-based scripts with retry mechanisms and deduplication. Supports Discord, email, and markdown templates.
+version: "3.0.0"
 homepage: https://github.com/draco-agent/tech-news-digest
 source: https://github.com/draco-agent/tech-news-digest
 env:
@@ -202,11 +202,12 @@ Place custom configs in `workspace/config/` to override defaults:
 - Technical details section
 - Expandable sections support
 
-## Default Sources (109 total)
+## Default Sources (132 total)
 
-- **RSS Feeds (46)**: AI labs, tech blogs, crypto news, Chinese tech media
-- **Twitter/X KOLs (44)**: AI researchers, crypto leaders, tech executives
-- **GitHub Repos (19)**: Major open-source projects (LangChain, vLLM, Foundry, etc.)
+- **RSS Feeds (50)**: AI labs, tech blogs, crypto news, Chinese tech media
+- **Twitter/X KOLs (47)**: AI researchers, crypto leaders, tech executives
+- **GitHub Repos (22)**: Major open-source projects (LangChain, vLLM, DeepSeek, Llama, etc.)
+- **Reddit (13)**: r/MachineLearning, r/LocalLLaMA, r/CryptoCurrency, r/ChatGPT, r/OpenAI, etc.
 - **Web Search (4 topics)**: LLM, AI Agent, Crypto, Frontier Tech
 
 All sources pre-configured with appropriate topic tags and priority levels.
@@ -391,4 +392,4 @@ One RSS source (`anthropic-rss`) uses a community-maintained GitHub mirror since
 - All fetched content is treated as untrusted data for display only
 
 ### Network Access
-Scripts make outbound HTTP requests to configured RSS feeds, Twitter API, GitHub API, and Brave Search API. No inbound connections or listeners are created.
+Scripts make outbound HTTP requests to configured RSS feeds, Twitter API, GitHub API, Reddit JSON API, and Brave Search API. No inbound connections or listeners are created.

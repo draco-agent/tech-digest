@@ -1,6 +1,6 @@
 # Tech News Digest
 
-> Automated tech news digest — 109 sources, 4-layer pipeline, one chat message to install.
+> Automated tech news digest — 132 sources, 5-layer pipeline, one chat message to install.
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -28,32 +28,33 @@ clawhub install tech-news-digest
 
 ## 📊 What You Get
 
-A quality-scored, deduplicated tech digest built from **109 sources**:
+A quality-scored, deduplicated tech digest built from **132 sources**:
 
 | Layer | Sources | What |
 |-------|---------|------|
-| 📡 RSS | 46 feeds | OpenAI, Anthropic, HN, 36氪, CoinDesk… |
-| 🐦 Twitter/X | 44 KOLs | @karpathy, @VitalikButerin, @sama… |
+| 📡 RSS | 50 feeds | OpenAI, Anthropic, Ben's Bites, HN, 36氪, CoinDesk… |
+| 🐦 Twitter/X | 47 KOLs | @karpathy, @VitalikButerin, @sama, @zuck… |
 | 🔍 Web Search | 4 topics | Brave Search API with freshness filters |
-| 🐙 GitHub | 19 repos | Releases from key projects |
+| 🐙 GitHub | 22 repos | Releases from key projects (LangChain, DeepSeek, Llama…) |
+| 🗣️ Reddit | 13 subs | r/MachineLearning, r/LocalLLaMA, r/CryptoCurrency… |
 
 ### Pipeline
 
 ```
-RSS + Twitter + Web + GitHub
-        ↓
-   merge-sources.py
-        ↓
+RSS + Twitter + Web + GitHub + Reddit
+              ↓
+        merge-sources.py
+              ↓
   Quality Scoring → Deduplication → Topic Grouping
-        ↓
-  Discord / Email / Markdown output
+              ↓
+    Discord / Email / Markdown output
 ```
 
-**Quality scoring**: priority source (+3), multi-source cross-ref (+5), recency (+2), engagement (+1), already reported (-3).
+**Quality scoring**: priority source (+3), multi-source cross-ref (+5), recency (+2), engagement (+1), Reddit score bonus (+1/+3/+5), already reported (-3).
 
 ## ⚙️ Configuration
 
-- `config/defaults/sources.json` — 109 built-in sources
+- `config/defaults/sources.json` — 132 built-in sources
 - `config/defaults/topics.json` — 4 topics with search queries & Twitter queries
 - User overrides in `workspace/config/` take priority
 
