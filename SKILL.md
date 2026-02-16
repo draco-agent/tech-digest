@@ -381,10 +381,10 @@ All scripts support `--verbose` flag for detailed logging and troubleshooting.
 ## Security Considerations
 
 ### Shell Execution
-The digest prompt instructs agents to run Python scripts via shell commands. All script paths and arguments are skill-defined constants — no user input is interpolated into commands. Scripts themselves contain no subprocess/os.system calls.
+The digest prompt instructs agents to run Python scripts via shell commands. All script paths and arguments are skill-defined constants — no user input is interpolated into commands. Scripts themselves contain no subprocess/os.system calls. Email delivery writes HTML to a temp file before passing to `gog` CLI, avoiding shell interpolation of fetched content. Email subjects are static format strings only.
 
 ### Third-Party RSS Sources
-One RSS source (`anthropic-rss`) uses a community-maintained GitHub mirror since Anthropic has no official RSS feed. Users should be aware of supply chain risks from third-party mirrors. The source is clearly annotated in `sources.json`.
+One RSS source (`anthropic-rss`) uses a community-maintained GitHub mirror since Anthropic has no official RSS feed. Mitigations: source is annotated in `sources.json`; `expected_domains` field restricts accepted article links to `anthropic.com` only — articles with unexpected domains are rejected and logged.
 
 ### Input Sanitization
 - URL resolution rejects non-HTTP(S) schemes (javascript:, data:, etc.)

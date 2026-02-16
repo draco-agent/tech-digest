@@ -104,6 +104,22 @@ def get_tag(xml: str, tag: str) -> str:
     return extract_cdata(m.group(1)).strip() if m else ""
 
 
+def validate_article_domain(article_link: str, source: Dict[str, Any]) -> bool:
+    """Validate that article links from mirror sources point to expected domains.
+    
+    Sources with 'expected_domains' field will have their article links checked.
+    Returns True if valid or if no domain restriction is set.
+    """
+    expected = source.get("expected_domains")
+    if not expected:
+        return True
+    if not article_link:
+        return False
+    from urllib.parse import urlparse
+    domain = urlparse(article_link).hostname or ""
+    return any(domain == d or domain.endswith("." + d) for d in expected)
+
+
 def resolve_link(link: str, base_url: str) -> str:
     """Resolve relative links against the feed URL. Rejects non-HTTP(S) schemes."""
     if not link:
@@ -306,9 +322,15 @@ def fetch_feed_with_retry(source: Dict[str, Any], cutoff: datetime, no_cache: bo
                 
             articles = parse_feed(content, cutoff, final_url)
             
-            # Tag articles with topics
+            # Tag articles with topics and validate domains
+            validated_articles = []
             for article in articles:
                 article["topics"] = topics[:]
+                if validate_article_domain(article.get("link", ""), source):
+                    validated_articles.append(article)
+                else:
+                    logging.warning(f"⚠️ {name}: rejected article with unexpected domain: {article.get('link', '')}")
+            articles = validated_articles
             
             return {
                 "source_id": source_id,
