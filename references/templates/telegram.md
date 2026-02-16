@@ -68,8 +68,15 @@ Telegram-optimized format using HTML formatting for rich display.
 ▪️ <a href="https://coindesk.com/btc-ath">Bitcoin reaches $67,000 ATH amid ETF approval</a>
    <code>[2 sources]</code>
 
-▪️ <a href="https://blog.ethereum.org/eth21">Ethereum 2.1: gas fees reduced 40%</a>
-   <i>L2 rollups see 300% transaction volume increase</i>
+<b>📢 KOL 动态</b>
+
+▪️ <b>@elonmusk</b> — Confirmed X's crypto trading feature
+   <i>👁 2.1M | 💬 12.3K | 🔁 8.5K | ❤️ 49.8K</i>
+   <a href="https://twitter.com/elonmusk/status/123456789">tweet</a>
+
+▪️ <b>@saylor</b> — Valentine's BTC enthusiasm
+   <i>👁 450K | 💬 1.2K | 🔁 3.1K | ❤️ 13K</i>
+   <a href="https://twitter.com/saylor/status/987654321">tweet</a>
 
 ━━━━━━━━━━━
 📊 RSS 285 篇 | Twitter 67 条 | Web 60 篇 | GitHub 29 个 release | 合并去重后 95 篇

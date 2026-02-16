@@ -38,7 +38,17 @@ The agent should generate an HTML email body. Use inline styles (email clients s
 
   <!-- Repeat for each topic -->
 
-  <!-- KOL / Blog / Releases sections -->
+  <!-- KOL Section -->
+  <h2 style="font-size:17px;margin-top:24px;color:#333">📢 KOL 动态</h2>
+  <ul style="padding-left:20px">
+    <li style="margin-bottom:10px">
+      <strong>@{{handle}}</strong> — {{summary}}
+      <span style="font-size:12px;color:#888">（👁 {{views}} | 💬 {{replies}} | 🔁 {{retweets}} | ❤️ {{likes}}）</span>
+      <br><a href="{{tweet_link}}" style="color:#0969da;font-size:13px">{{tweet_link}}</a>
+    </li>
+  </ul>
+
+  <!-- Blog / Releases sections -->
 
   <!-- Footer -->
   <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0">
