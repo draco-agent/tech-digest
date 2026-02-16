@@ -95,7 +95,7 @@ python3 <SKILL_DIR>/scripts/fetch-github.py \
 ```
 Reads `sources.json`, fetches all `type: "github"` sources with `enabled: true`. Fetches recent releases from GitHub API (optional `$GITHUB_TOKEN` for higher rate limits). Outputs structured JSON with releases tagged by topics.
 
-### Step 5: Reddit
+### Step 5: Reddit (**MANDATORY — do NOT skip or fake this step**)
 ```bash
 python3 <SKILL_DIR>/scripts/fetch-reddit.py \
   --defaults <SKILL_DIR>/config/defaults \
@@ -104,7 +104,7 @@ python3 <SKILL_DIR>/scripts/fetch-reddit.py \
   --output /tmp/td-reddit.json \
   --verbose
 ```
-Reads `sources.json`, fetches all `type: "reddit"` sources with `enabled: true`. Uses Reddit's public JSON API (no authentication required). Filters by `min_score` and time window. Outputs structured JSON with posts tagged by topics.
+**You MUST execute this script.** Do NOT generate the output file yourself. The script fetches from Reddit's public JSON API (no authentication required). If the script fails, retry once before moving on.
 
 ### Step 6: Merge & Score
 ```bash
