@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.0
+
+- **Tweet Engagement Metrics**: KOL Updates now display 👁 views, 💬 replies, 🔁 retweets, ❤️ likes from Twitter public_metrics across all templates (Discord, Email, Telegram)
+
 ## v2.6.1
 
 - **Graceful Twitter Degradation**: Missing `X_BEARER_TOKEN` now outputs empty JSON and exits 0 instead of failing with exit code 1, allowing the pipeline to continue without Twitter data
