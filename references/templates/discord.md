@@ -50,13 +50,7 @@ Discord-optimized format with bullet points and link suppression.
 • Meta's Llama 3.1 achieves new MMLU benchmarks
   <https://ai.meta.com/blog/llama-31-release>
 
-• Anthropic Claude 4 now supports 1M token context window
-  <https://anthropic.com/news/claude-4-context>
-
 ## 🤖 AI Agent
-
-• AutoGPT v0.5 introduces autonomous code deployment
-  <https://github.com/Significant-Gravitas/AutoGPT/releases>
 
 • LangChain launches production-ready agent framework
   <https://blog.langchain.dev/production-agents>
@@ -67,8 +61,12 @@ Discord-optimized format with bullet points and link suppression.
   <https://coindesk.com/markets/btc-ath-etf>
   *[2 sources]*
 
-• Ethereum 2.1 upgrade reduces gas fees by 40%
-  <https://blog.ethereum.org/eth21-upgrade>
+## 📢 KOL Updates
+
+• **@elonmusk** — Confirmed X's crypto trading feature（👁 2.1M | 💬 12.3K | 🔁 8.5K | ❤️ 49.8K）
+  <https://twitter.com/elonmusk/status/123456789>
+• **@saylor** — Valentine's BTC enthusiasm（👁 450K | 💬 1.2K | 🔁 3.1K | ❤️ 13K）
+  <https://twitter.com/saylor/status/987654321>
 
 ---
 📊 数据源统计：RSS 285 篇 | Twitter 67 条 | Web 60 篇 | GitHub 29 个 release | 合并去重后 95 篇

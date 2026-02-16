@@ -125,7 +125,7 @@ Use sections defined in `topics.json`. Each topic has:
 - `search.must_include` / `search.exclude` for content filtering
 
 ### Fixed Sections (append after topic sections)
-- 📢 KOL Updates (Twitter KOLs + notable blog posts from RSS authors — **each entry MUST include the source tweet/post URL**. Format: `• **@handle** — summary\n  <https://twitter.com/handle/status/ID>`)
+- 📢 KOL Updates (Twitter KOLs + notable blog posts from RSS authors — **each entry MUST include the source tweet/post URL and engagement metrics**. Format: `• **@handle** — summary（👁 12.3K | 💬 45 | 🔁 230 | ❤️ 1.2K）\n  <https://twitter.com/handle/status/ID>`. Metrics come from `public_metrics` in the Twitter data: impression_count → 👁, reply_count → 💬, retweet_count → 🔁, like_count → ❤️. Omit metrics if data unavailable. Use K/M suffixes for large numbers.)
 - 🔥 Twitter/X Trending (**each entry MUST include at least one reference link** — tweet URL, article URL, or web source. No link-free entries allowed.)
 - 📝 Blog Picks (<BLOG_PICKS_COUNT> high-quality deep articles from RSS)
 <EXTRA_SECTIONS>
