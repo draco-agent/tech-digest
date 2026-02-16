@@ -38,13 +38,22 @@ The agent should generate an HTML email body. Use inline styles (email clients s
 
   <!-- Repeat for each topic -->
 
-  <!-- KOL Section -->
+  <!-- KOL Section: Read metrics from twitter JSON data (metrics.impression_count, reply_count, retweet_count, like_count). One tweet per <li>. -->
   <h2 style="font-size:17px;margin-top:24px;color:#333">📢 KOL 动态</h2>
   <ul style="padding-left:20px">
     <li style="margin-bottom:10px">
       <strong>@{{handle}}</strong> — {{summary}}
-      <code style="font-size:12px;color:#888;background:#f4f4f4;padding:2px 6px;border-radius:3px">👁 {{views}} | 💬 {{replies}} | 🔁 {{retweets}} | ❤️ {{likes}}</code>
+      <br><code style="font-size:12px;color:#888;background:#f4f4f4;padding:2px 6px;border-radius:3px">👁 {{views}} | 💬 {{replies}} | 🔁 {{retweets}} | ❤️ {{likes}}</code>
       <br><a href="{{tweet_link}}" style="color:#0969da;font-size:13px">{{tweet_link}}</a>
+    </li>
+  </ul>
+
+  <!-- Twitter/X Trending Section: Each entry must include at least one reference link -->
+  <h2 style="font-size:17px;margin-top:24px;color:#333">🔥 Twitter/X 热议</h2>
+  <ul style="padding-left:20px">
+    <li style="margin-bottom:10px">
+      <strong>{{trending_topic}}</strong> — {{summary}}
+      <br><a href="{{reference_link}}" style="color:#0969da;font-size:13px">{{reference_link}}</a>
     </li>
   </ul>
 
