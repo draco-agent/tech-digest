@@ -28,9 +28,6 @@ env:
   - name: GH_APP_KEY_FILE
     required: false
     description: Path to GitHub App private key PEM file
-  - name: GH_APP_TOKEN_SCRIPT
-    required: false
-    description: "Path to a TRUSTED script that generates GitHub App installation tokens. ⚠️ This script will be executed via subprocess — only point this to a script you have reviewed and trust. No user-supplied or fetched content is passed to it."
 tools:
   - python3: Required. Runs data collection and merge scripts.
   - gog: Optional. Gmail CLI for email delivery (skip if not installed).
@@ -419,18 +416,18 @@ All scripts support `--verbose` flag for detailed logging and troubleshooting.
 ## Security Considerations
 
 ### Shell Execution
-The digest prompt instructs agents to run Python scripts via shell commands. All script paths and arguments are skill-defined constants — no user input is interpolated into commands. Two scripts use `subprocess.run()`:
+The digest prompt instructs agents to run Python scripts via shell commands. All script paths and arguments are skill-defined constants — no user input is interpolated into commands. Two scripts use `subprocess`:
 - `run-pipeline.py` orchestrates child fetch scripts (all within `scripts/` directory)
-- `fetch-github.py` has two optional subprocess calls for GitHub authentication fallback:
-  1. An external token generation script (path from `$GH_APP_TOKEN_SCRIPT` env var — only runs if all 4 `GH_APP_*` env vars are set and the script file exists)
-  2. `gh auth token` CLI (only runs if `gh` is installed — reads from gh's own credential store, not from arbitrary files)
+- `fetch-github.py` has two subprocess calls:
+  1. `openssl dgst -sha256 -sign` for JWT signing (only if `GH_APP_*` env vars are set — signs a self-constructed JWT payload, no user content involved)
+  2. `gh auth token` CLI fallback (only if `gh` is installed — reads from gh's own credential store)
 
 No user-supplied or fetched content is ever interpolated into subprocess arguments. Email delivery writes HTML to a temp file before passing to `gog` CLI, avoiding shell interpolation. Email subjects are static format strings only.
 
 ### Credential & File Access
 Scripts do **not** directly read `~/.config/`, `~/.ssh/`, or any credential files. All API tokens are read from environment variables declared in the skill metadata. The GitHub auth cascade is:
 1. `$GITHUB_TOKEN` env var (you control what to provide)
-2. GitHub App token generation (only if you explicitly set all 4 `GH_APP_*` env vars — `GH_APP_TOKEN_SCRIPT` is executed as a subprocess, so only point it to a script you trust; the script receives only `--app-id`, `--install-id`, and `--key-file` arguments, never any fetched or user-supplied content)
+2. GitHub App token generation (only if you set `GH_APP_ID`, `GH_APP_INSTALL_ID`, and `GH_APP_KEY_FILE` — uses inline JWT signing via `openssl` CLI, no external scripts involved)
 3. `gh auth token` CLI (delegates to gh's own secure credential store)
 4. Unauthenticated (60 req/hr, safe fallback)
 

@@ -33,6 +33,62 @@ GITHUB_CACHE_PATH = "/tmp/tech-news-digest-github-cache.json"
 GITHUB_CACHE_TTL_HOURS = 24
 
 
+def _b64url(data: bytes) -> str:
+    """Base64url encode without padding."""
+    import base64
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
+
+
+def _generate_github_app_token(app_id: str, install_id: str, key_file: str) -> str:
+    """Generate a GitHub App installation token using JWT (RS256 via openssl).
+    
+    No external scripts or pip dependencies required — uses openssl CLI for RSA signing.
+    Returns the token string, or empty string on failure.
+    """
+    import subprocess as _sp
+
+    with open(key_file) as f:
+        private_key = f.read()
+
+    # Build JWT
+    now = int(time.time())
+    header = _b64url(json.dumps({"alg": "RS256", "typ": "JWT"}).encode())
+    payload = _b64url(json.dumps({"iat": now - 60, "exp": now + 600, "iss": app_id}).encode())
+    signing_input = f"{header}.{payload}"
+
+    # Sign with openssl (avoids needing PyJWT/cryptography)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as f:
+        f.write(private_key)
+        tmp_key = f.name
+    try:
+        result = _sp.run(
+            ['openssl', 'dgst', '-sha256', '-sign', tmp_key],
+            input=signing_input.encode(), capture_output=True, timeout=10,
+        )
+        if result.returncode != 0:
+            logging.debug(f"openssl sign failed: {result.stderr.decode()}")
+            return ""
+        signature = _b64url(result.stdout)
+    finally:
+        os.unlink(tmp_key)
+
+    jwt = f"{signing_input}.{signature}"
+
+    # Exchange JWT for installation token
+    req = Request(
+        f"https://api.github.com/app/installations/{install_id}/access_tokens",
+        method='POST',
+        headers={
+            'Authorization': f'Bearer {jwt}',
+            'Accept': 'application/vnd.github+json',
+            'User-Agent': 'tech-news-digest',
+        },
+    )
+    with urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode())
+    return data.get("token", "")
+
+
 def setup_logging(verbose: bool) -> logging.Logger:
     """Setup logging configuration."""
     level = logging.DEBUG if verbose else logging.INFO
@@ -106,30 +162,16 @@ def resolve_github_token() -> Optional[str]:
             logging.info("🔑 Using GitHub token (5000 req/hr)")
         return token
     
-    # 2. GitHub App auto-generation (requires GH_APP_ID, GH_APP_INSTALL_ID, GH_APP_KEY_FILE env vars
-    #    and a token generation script at GH_APP_TOKEN_SCRIPT)
+    # 2. GitHub App auto-generation (requires GH_APP_ID, GH_APP_INSTALL_ID, GH_APP_KEY_FILE env vars)
+    #    Generates a short-lived installation token using JWT + GitHub API. No external scripts needed.
     app_id = os.environ.get("GH_APP_ID")
     install_id = os.environ.get("GH_APP_INSTALL_ID")
     key_file = os.environ.get("GH_APP_KEY_FILE")
-    token_script = os.environ.get("GH_APP_TOKEN_SCRIPT")
     
-    if app_id and install_id and key_file and token_script and os.path.exists(key_file) and os.path.exists(token_script):
-        # Security: GH_APP_TOKEN_SCRIPT is user-configured — only set this to a script you trust.
-        # The script is invoked as: python3 <script> --app-id <id> --install-id <id> --key-file <path>
-        # No user-supplied or fetched content is passed to it.
-        logging.debug(f"Attempting GitHub App token via: {token_script}")
+    if app_id and install_id and key_file and os.path.exists(key_file):
         try:
-            import subprocess
-            result = subprocess.run(
-                [sys.executable, token_script,
-                 "--app-id", app_id, "--install-id", install_id,
-                 "--key-file", key_file],
-                capture_output=True, text=True, timeout=15,
-            )
-            token = "".join(
-                l for l in result.stdout.splitlines() if not l.startswith("#")
-            ).strip()
-            if token and result.returncode == 0:
+            token = _generate_github_app_token(app_id, install_id, key_file)
+            if token:
                 logging.info("🔑 GitHub App token auto-generated (5000 req/hr)")
                 return token
         except Exception as e:
