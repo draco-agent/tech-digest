@@ -47,6 +47,28 @@ Read the most recent archive file from `<WORKSPACE>/archive/tech-digest/` (if an
 
 ## Data Collection Pipeline
 
+**You MUST use the unified pipeline command below.** Do NOT run individual fetch scripts separately — the unified pipeline runs all 5 sources in parallel and is significantly faster (~30s vs ~4min).
+
+```bash
+python3 <SKILL_DIR>/scripts/run-pipeline.py \
+  --defaults <SKILL_DIR>/config/defaults \
+  --config <WORKSPACE>/config \
+  --hours <RSS_HOURS> \
+  --freshness <FRESHNESS> \
+  --archive-dir <WORKSPACE>/archive/tech-digest/ \
+  --output /tmp/td-merged.json \
+  --verbose --force
+```
+
+This runs RSS + Twitter + GitHub + Reddit + Web fetch in parallel, then merges + deduplicates + scores into `/tmp/td-merged.json`. The `--force` flag ensures fresh data (no stale cache).
+
+Pipeline metadata (per-step timing/counts) is saved to `/tmp/td-merged.meta.json`.
+
+**Only if `run-pipeline.py` fails**, fall back to running individual scripts:
+
+<details>
+<summary>Individual Steps (fallback only)</summary>
+
 ### Step 1: RSS Feeds
 ```bash
 python3 <SKILL_DIR>/scripts/fetch-rss.py \
@@ -54,11 +76,8 @@ python3 <SKILL_DIR>/scripts/fetch-rss.py \
   --config <WORKSPACE>/config \
   --hours <RSS_HOURS> \
   --output /tmp/td-rss.json \
-  --verbose
+  --verbose --force
 ```
-Reads `sources.json`, fetches all `type: "rss"` sources with `enabled: true`. Outputs structured JSON with articles tagged by topics. Includes retry mechanism and parallel fetching.
-
-If the script fails, fall back to manually fetching priority feeds via `web_fetch`.
 
 ### Step 2: Twitter/X KOL Monitoring
 ```bash
@@ -67,9 +86,8 @@ python3 <SKILL_DIR>/scripts/fetch-twitter.py \
   --config <WORKSPACE>/config \
   --hours <RSS_HOURS> \
   --output /tmp/td-twitter.json \
-  --verbose
+  --verbose --force
 ```
-Reads `sources.json`, fetches all `type: "twitter"` sources. Requires `$X_BEARER_TOKEN` env var. If unavailable, skip this step.
 
 ### Step 3: Web Search
 ```bash
@@ -78,11 +96,8 @@ python3 <SKILL_DIR>/scripts/fetch-web.py \
   --config <WORKSPACE>/config \
   --freshness <FRESHNESS> \
   --output /tmp/td-web.json \
-  --verbose
+  --verbose --force
 ```
-Reads `topics.json` search queries. Uses Brave Search API if `$BRAVE_API_KEY` is set; otherwise generates queries for agent to execute via `web_search`.
-
-Also search Twitter trending discussions using `web_search` with `freshness='<FRESHNESS>'` and the `twitter_queries` from topics.
 
 ### Step 4: GitHub Releases
 ```bash
@@ -91,20 +106,18 @@ python3 <SKILL_DIR>/scripts/fetch-github.py \
   --config <WORKSPACE>/config \
   --hours <RSS_HOURS> \
   --output /tmp/td-github.json \
-  --verbose
+  --verbose --force
 ```
-Reads `sources.json`, fetches all `type: "github"` sources with `enabled: true`. Fetches recent releases from GitHub API (optional `$GITHUB_TOKEN` for higher rate limits). Outputs structured JSON with releases tagged by topics.
 
-### Step 5: Reddit (**MANDATORY — do NOT skip or fake this step**)
+### Step 5: Reddit
 ```bash
 python3 <SKILL_DIR>/scripts/fetch-reddit.py \
   --defaults <SKILL_DIR>/config/defaults \
   --config <WORKSPACE>/config \
   --hours <RSS_HOURS> \
   --output /tmp/td-reddit.json \
-  --verbose
+  --verbose --force
 ```
-**You MUST execute this script.** Do NOT generate the output file yourself. The script fetches from Reddit's public JSON API (no authentication required). If the script fails, retry once before moving on.
 
 ### Step 6: Merge & Score
 ```bash
@@ -127,6 +140,8 @@ Merges all sources, deduplicates (title similarity + domain), applies quality sc
 - Already in previous report: -5
 
 Output is grouped by topic with articles sorted by score.
+
+</details>
 
 ## Report Generation
 
