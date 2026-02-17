@@ -313,32 +313,32 @@ The cron prompt should **NOT** hardcode the pipeline steps. Instead, reference `
 
 #### Daily Digest Cron Prompt
 ```
-读取 <SKILL_DIR>/references/digest-prompt.md，按照其中的完整流程生成日报。
+Read <SKILL_DIR>/references/digest-prompt.md and follow the complete workflow to generate a daily digest.
 
-用以下参数替换占位符：
+Replace placeholders with:
 - MODE = daily
 - TIME_WINDOW = past 1-2 days
 - FRESHNESS = pd
 - RSS_HOURS = 48
 - ITEMS_PER_SECTION = 3-5
 - BLOG_PICKS_COUNT = 2-3
-- EXTRA_SECTIONS = （无）
+- EXTRA_SECTIONS = (none)
 - SUBJECT = Daily Tech Digest - YYYY-MM-DD
 - WORKSPACE = <your workspace path>
 - SKILL_DIR = <your skill install path>
 - DISCORD_CHANNEL_ID = <your channel id>
-- EMAIL = （optional）
-- LANGUAGE = Chinese
+- EMAIL = (optional)
+- LANGUAGE = English
 - TEMPLATE = discord
 
-严格按 prompt 模板中的步骤执行，不要跳过任何步骤。
+Follow every step in the prompt template strictly. Do not skip any steps.
 ```
 
 #### Weekly Digest Cron Prompt
 ```
-读取 <SKILL_DIR>/references/digest-prompt.md，按照其中的完整流程生成周报。
+Read <SKILL_DIR>/references/digest-prompt.md and follow the complete workflow to generate a weekly digest.
 
-用以下参数替换占位符：
+Replace placeholders with:
 - MODE = weekly
 - TIME_WINDOW = past 7 days
 - FRESHNESS = pw
@@ -350,11 +350,11 @@ The cron prompt should **NOT** hardcode the pipeline steps. Instead, reference `
 - WORKSPACE = <your workspace path>
 - SKILL_DIR = <your skill install path>
 - DISCORD_CHANNEL_ID = <your channel id>
-- EMAIL = （optional）
-- LANGUAGE = Chinese
+- EMAIL = (optional)
+- LANGUAGE = English
 - TEMPLATE = discord
 
-严格按 prompt 模板中的步骤执行，不要跳过任何步骤。
+Follow every step in the prompt template strictly. Do not skip any steps.
 ```
 
 #### Why This Pattern?
