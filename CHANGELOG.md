@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.4.9
+
+- Declare `openssl` as optional binary in SKILL.md (used for GitHub App JWT signing)
+
 ## v3.4.8
 
 - **New `summarize-merged.py` helper**: Outputs structured human-readable summary of merged data, sorted by quality score with metrics/sources
