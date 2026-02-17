@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.5
+
+- Fix source count inconsistencies across docs (131/132 → 133: 49 RSS + 49 Twitter + 22 GitHub + 13 Reddit)
+- Rename legacy `tech-digest` references to `tech-news-digest` in comments, descriptions, and cache file paths
+
 ## v3.4.4
 
 - Remove hardcoded Discord channel ID from SKILL.md (use `<your-discord-channel-id>` placeholder)
