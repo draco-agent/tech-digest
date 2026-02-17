@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.8
+
+- **New `summarize-merged.py` helper**: Outputs structured human-readable summary of merged data, sorted by quality score with metrics/sources
+- **Prevent ad-hoc JSON parsing**: `digest-prompt.md` now instructs agents to use `summarize-merged.py` instead of writing inline Python (which often failed with `AttributeError` on nested structures)
+
 ## v3.4.7
 
 - **Inline GitHub App JWT signing**: Remove `GH_APP_TOKEN_SCRIPT` env var entirely. Token generation now built into `fetch-github.py` using `openssl` CLI for RS256 signing — no external scripts executed, no arbitrary code execution risk.
