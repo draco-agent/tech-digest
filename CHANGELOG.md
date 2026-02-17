@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.4.7
+
+- **Inline GitHub App JWT signing**: Remove `GH_APP_TOKEN_SCRIPT` env var entirely. Token generation now built into `fetch-github.py` using `openssl` CLI for RS256 signing — no external scripts executed, no arbitrary code execution risk.
+- Only 3 env vars needed: `GH_APP_ID`, `GH_APP_INSTALL_ID`, `GH_APP_KEY_FILE`
+- Remove unused imports, fix bare excepts across all scripts
+
 ## v3.4.6
 
 - Add `reddit` to config/schema.json source type enum (was missing, caused validation mismatch)
