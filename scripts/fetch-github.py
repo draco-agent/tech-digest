@@ -114,6 +114,10 @@ def resolve_github_token() -> Optional[str]:
     token_script = os.environ.get("GH_APP_TOKEN_SCRIPT")
     
     if app_id and install_id and key_file and token_script and os.path.exists(key_file) and os.path.exists(token_script):
+        # Security: GH_APP_TOKEN_SCRIPT is user-configured — only set this to a script you trust.
+        # The script is invoked as: python3 <script> --app-id <id> --install-id <id> --key-file <path>
+        # No user-supplied or fetched content is passed to it.
+        logging.debug(f"Attempting GitHub App token via: {token_script}")
         try:
             import subprocess
             result = subprocess.run(

@@ -30,7 +30,7 @@ env:
     description: Path to GitHub App private key PEM file
   - name: GH_APP_TOKEN_SCRIPT
     required: false
-    description: Path to script that generates GitHub App installation tokens
+    description: "Path to a TRUSTED script that generates GitHub App installation tokens. ⚠️ This script will be executed via subprocess — only point this to a script you have reviewed and trust. No user-supplied or fetched content is passed to it."
 tools:
   - python3: Required. Runs data collection and merge scripts.
   - gog: Optional. Gmail CLI for email delivery (skip if not installed).
@@ -39,11 +39,11 @@ files:
     - config/defaults/: Default source and topic configurations
     - references/: Prompt templates and output templates
     - scripts/: Python pipeline scripts
-    - workspace/archive/tech-digest/: Previous digests for dedup
+    - <workspace>/archive/tech-digest/: Previous digests for dedup
   write:
     - /tmp/td-*.json: Temporary pipeline intermediate outputs
     - /tmp/td-email.html: Temporary email HTML body
-    - workspace/archive/tech-digest/: Saved digest archives
+    - <workspace>/archive/tech-digest/: Saved digest archives
 ---
 
 # Tech News Digest
@@ -284,7 +284,7 @@ python3 scripts/fetch-twitter.py --hours 1 --verbose
 ```
 
 ### Archive Management
-- Digests automatically archived to `workspace/archive/tech-digest/`
+- Digests automatically archived to `<workspace>/archive/tech-digest/`
 - Previous digest titles used for duplicate detection
 - Old archives cleaned automatically (90+ days)
 
@@ -430,7 +430,7 @@ No user-supplied or fetched content is ever interpolated into subprocess argumen
 ### Credential & File Access
 Scripts do **not** directly read `~/.config/`, `~/.ssh/`, or any credential files. All API tokens are read from environment variables declared in the skill metadata. The GitHub auth cascade is:
 1. `$GITHUB_TOKEN` env var (you control what to provide)
-2. GitHub App token generation (only if you explicitly set `GH_APP_*` env vars pointing to your own credentials)
+2. GitHub App token generation (only if you explicitly set all 4 `GH_APP_*` env vars — `GH_APP_TOKEN_SCRIPT` is executed as a subprocess, so only point it to a script you trust; the script receives only `--app-id`, `--install-id`, and `--key-file` arguments, never any fetched or user-supplied content)
 3. `gh auth token` CLI (delegates to gh's own secure credential store)
 4. Unauthenticated (60 req/hr, safe fallback)
 
