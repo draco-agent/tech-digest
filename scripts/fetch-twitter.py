@@ -28,7 +28,7 @@ from urllib.parse import urlencode
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-TIMEOUT = 15
+TIMEOUT = 30
 MAX_WORKERS = 5  # Lower for API rate limits
 RETRY_COUNT = 1
 RETRY_DELAY = 2.0

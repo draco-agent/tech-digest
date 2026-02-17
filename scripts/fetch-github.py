@@ -24,7 +24,7 @@ from urllib.error import URLError, HTTPError
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-TIMEOUT = 15
+TIMEOUT = 30
 MAX_WORKERS = 10
 MAX_RELEASES_PER_REPO = 20
 RETRY_COUNT = 2
@@ -85,6 +85,69 @@ def truncate_summary(text: str, max_chars: int = 200) -> str:
         truncated = truncated[:last_space]
     
     return truncated + "..."
+
+
+def resolve_github_token() -> Optional[str]:
+    """Resolve GitHub token from multiple sources, in priority order:
+    
+    1. $GITHUB_TOKEN env var (PAT or pre-generated App token)
+    2. GitHub App installation token (auto-generated from App credentials)
+    3. `gh auth token` CLI fallback
+    4. None (unauthenticated, 60 req/hr)
+    """
+    # 1. Environment variable (PAT or externally-set App token)
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        if token.startswith("ghp_"):
+            logging.info("🔑 Using GitHub PAT (5000 req/hr)")
+        elif token.startswith("ghs_"):
+            logging.info("🔑 Using GitHub App installation token (5000 req/hr)")
+        else:
+            logging.info("🔑 Using GitHub token (5000 req/hr)")
+        return token
+    
+    # 2. GitHub App auto-generation
+    app_id = os.environ.get("GH_APP_ID", "2870188")
+    install_id = os.environ.get("GH_APP_INSTALL_ID", "110276220")
+    key_file = os.environ.get("GH_APP_KEY_FILE",
+                              os.path.expanduser("~/.config/gh-app/draco-deploy.pem"))
+    token_script = os.path.expanduser("~/.openclaw/workspace/scripts/gh-app-token.py")
+    
+    if os.path.exists(key_file) and os.path.exists(token_script):
+        try:
+            import subprocess
+            result = subprocess.run(
+                [sys.executable, token_script,
+                 "--app-id", app_id, "--install-id", install_id,
+                 "--key-file", key_file],
+                capture_output=True, text=True, timeout=15,
+            )
+            token = "".join(
+                l for l in result.stdout.splitlines() if not l.startswith("#")
+            ).strip()
+            if token and result.returncode == 0:
+                logging.info("🔑 GitHub App token auto-generated (5000 req/hr)")
+                return token
+        except Exception as e:
+            logging.debug(f"GitHub App token generation failed: {e}")
+    
+    # 3. gh CLI fallback
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["gh", "auth", "token"], capture_output=True, text=True, timeout=5
+        )
+        token = result.stdout.strip()
+        if token and result.returncode == 0:
+            logging.info("🔑 Using gh CLI token (5000 req/hr)")
+            return token
+    except Exception:
+        pass
+    
+    # 4. Unauthenticated
+    logging.warning("⚠️ No GitHub token found — rate limit 60 req/hr (22 repos may fail)")
+    logging.warning("  Set $GITHUB_TOKEN or install GitHub App credentials to fix this")
+    return None
 
 
 def parse_github_date(date_str: str) -> Optional[datetime]:
@@ -153,7 +216,7 @@ def fetch_releases_with_retry(source: Dict[str, Any], cutoff: datetime, github_t
         "Accept": "application/vnd.github.v3+json",
     }
     if github_token:
-        headers["Authorization"] = f"token {github_token}"
+        headers["Authorization"] = f"Bearer {github_token}"
     
     # Add conditional headers from cache
     global _github_cache_dirty
@@ -392,12 +455,8 @@ Environment Variables:
         
         logger.info(f"Fetching {len(sources)} GitHub repositories (window: {args.hours}h)")
         
-        # Check for GitHub token
-        github_token = os.environ.get("GITHUB_TOKEN")
-        if github_token:
-            logger.debug("Using GitHub token for authentication")
-        else:
-            logger.warning("Warning: No GITHUB_TOKEN — rate limit is 60 req/hour. Set GITHUB_TOKEN env var for 5000 req/hour.")
+        # Resolve GitHub token (PAT → App → gh CLI → unauthenticated)
+        github_token = resolve_github_token()
         
         # Initialize cache
         _get_github_cache(no_cache=args.no_cache)

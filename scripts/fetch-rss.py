@@ -32,7 +32,7 @@ try:
 except ImportError:
     HAS_FEEDPARSER = False
 
-TIMEOUT = 15
+TIMEOUT = 30
 MAX_WORKERS = 10  
 MAX_ARTICLES_PER_FEED = 20
 RETRY_COUNT = 1

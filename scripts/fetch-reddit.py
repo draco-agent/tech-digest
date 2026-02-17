@@ -17,17 +17,21 @@ import sys
 import os
 import argparse
 import logging
+import ssl
 import time
 import tempfile
 from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from urllib.request import Request, urlopen
+
+_SSL_CTX = ssl.create_default_context()
 from urllib.error import HTTPError, URLError
 
 # Constants
 MAX_WORKERS = 4
-TIMEOUT = 15
+TIMEOUT = 30
 RETRY_COUNT = 2
 RETRY_DELAY = 3
 USER_AGENT = "TechDigest/2.8 (bot; +https://github.com/draco-agent/tech-news-digest)"
@@ -81,10 +85,11 @@ def fetch_subreddit(source: Dict[str, Any], cutoff: datetime) -> Dict[str, Any]:
         try:
             req = Request(url, headers={
                 'User-Agent': USER_AGENT,
-                'Accept': 'application/json',
+                'Accept': 'text/html,application/json',
+                'Accept-Language': 'en-US,en;q=0.9',
             })
             
-            with urlopen(req, timeout=TIMEOUT) as resp:
+            with urlopen(req, timeout=TIMEOUT, context=_SSL_CTX) as resp:
                 data = json.loads(resp.read().decode('utf-8'))
             
             articles = []
@@ -282,14 +287,12 @@ Examples:
         results = []
         total_posts = 0
         
-        for source in sources:
-            logger.debug(f"Fetching r/{source['subreddit']}...")
-            result = fetch_subreddit(source, cutoff)
-            results.append(result)
-            total_posts += result.get('count', 0)
-            
-            # Rate limiting: 1 second between requests
-            time.sleep(1)
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+            futures = {pool.submit(fetch_subreddit, source, cutoff): source for source in sources}
+            for future in as_completed(futures):
+                result = future.result()
+                results.append(result)
+                total_posts += result.get('count', 0)
         
         ok_count = sum(1 for r in results if r['status'] == 'ok')
         

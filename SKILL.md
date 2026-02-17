@@ -1,7 +1,7 @@
 ---
 name: tech-news-digest
 description: Generate tech news digests with unified source model, quality scoring, and multi-format output. Five-layer data collection from RSS feeds, Twitter/X KOLs, GitHub releases, Reddit, and web search. Pipeline-based scripts with retry mechanisms and deduplication. Supports Discord, email, and markdown templates.
-version: "3.3.2"
+version: "3.4.0"
 homepage: https://github.com/draco-agent/tech-news-digest
 source: https://github.com/draco-agent/tech-news-digest
 metadata:
@@ -18,7 +18,7 @@ env:
     description: Brave Search API key for web search layer
   - name: GITHUB_TOKEN
     required: false
-    description: GitHub personal access token for higher API rate limits
+    description: GitHub token for higher API rate limits (auto-generated from GitHub App if not set)
 tools:
   - python3: Required. Runs data collection and merge scripts.
   - gog: Optional. Gmail CLI for email delivery (skip if not installed).
@@ -54,12 +54,13 @@ Automated tech news digest system with unified data source model, quality scorin
 
 3. **Generate Digest**:
    ```bash
-   # Full pipeline
-   python3 scripts/fetch-rss.py --config workspace/config
-   python3 scripts/fetch-twitter.py --config workspace/config  
-   python3 scripts/fetch-web.py --config workspace/config
-   python3 scripts/fetch-github.py --config workspace/config
-   python3 scripts/merge-sources.py --rss rss.json --twitter twitter.json --web web.json --github github.json
+   # Unified pipeline (recommended) — runs all 5 sources in parallel + merge
+   python3 scripts/run-pipeline.py \
+     --defaults config/defaults \
+     --config workspace/config \
+     --hours 48 --freshness pd \
+     --archive-dir workspace/archive/tech-digest/ \
+     --output /tmp/td-merged.json --verbose --force
    ```
 
 4. **Use Templates**: Apply Discord, email, or markdown templates to merged output
@@ -119,54 +120,68 @@ Automated tech news digest system with unified data source model, quality scorin
 
 ## Scripts Pipeline
 
-### 1. `fetch-rss.py` - RSS Feed Fetcher
+### `run-pipeline.py` - Unified Pipeline (Recommended)
 ```bash
-python3 scripts/fetch-rss.py [--config CONFIG_DIR] [--hours 48] [--output FILE] [--verbose]
+python3 scripts/run-pipeline.py \
+  --defaults config/defaults [--config CONFIG_DIR] \
+  --hours 48 --freshness pd \
+  --archive-dir workspace/archive/tech-digest/ \
+  --output /tmp/td-merged.json --verbose --force
 ```
-- **Features**: Parallel fetching, retry mechanism, feedparser + regex fallback
-- **Output**: Structured JSON with articles tagged by topics
-- **Timeout**: 15s per feed with exponential backoff retry
+- **Features**: Runs all 5 fetch steps in parallel, then merges + deduplicates + scores
+- **Output**: Final merged JSON ready for report generation (~30s total)
+- **Metadata**: Saves per-step timing and counts to `*.meta.json`
+- **GitHub Auth**: Auto-generates GitHub App token if `$GITHUB_TOKEN` not set
+- **Fallback**: If this fails, run individual scripts below
 
-### 2. `fetch-twitter.py` - Twitter/X KOL Monitor  
-```bash
-python3 scripts/fetch-twitter.py [--config CONFIG_DIR] [--hours 48] [--output FILE]
-```
-- **Requirements**: `X_BEARER_TOKEN` environment variable
-- **Features**: Rate limit handling, engagement metrics, reply filtering
-- **API**: Twitter API v2 with app-only authentication
+### Individual Scripts (Fallback)
 
-### 3. `fetch-web.py` - Web Search Engine
+#### `fetch-rss.py` - RSS Feed Fetcher
 ```bash
-python3 scripts/fetch-web.py [--config CONFIG_DIR] [--freshness 48h] [--output FILE]
+python3 scripts/fetch-rss.py [--defaults DIR] [--config DIR] [--hours 48] [--output FILE] [--verbose]
 ```
-- **With Brave API**: Automated search execution (requires `BRAVE_API_KEY`)
-- **Without API**: Generates search interface for agents to execute
-- **Filtering**: Content-based inclusion/exclusion rules
+- Parallel fetching (10 workers), retry with backoff, feedparser + regex fallback
+- Timeout: 30s per feed, ETag/Last-Modified caching
 
-### 4. `fetch-github.py` - GitHub Releases Monitor
+#### `fetch-twitter.py` - Twitter/X KOL Monitor  
 ```bash
-python3 scripts/fetch-github.py [--config CONFIG_DIR] [--hours 168] [--output FILE]
+python3 scripts/fetch-twitter.py [--defaults DIR] [--config DIR] [--hours 48] [--output FILE]
 ```
-- **Features**: Parallel repository monitoring, release filtering, markdown stripping
-- **Authentication**: Optional `GITHUB_TOKEN` for higher rate limits
-- **Output**: Structured JSON with releases tagged by topics
+- Requires `X_BEARER_TOKEN`, rate limit handling, engagement metrics
 
-### 5. `merge-sources.py` - Quality Scoring & Deduplication
+#### `fetch-web.py` - Web Search Engine
 ```bash
-python3 scripts/merge-sources.py --rss rss.json --twitter twitter.json --web web.json --github github.json
+python3 scripts/fetch-web.py [--defaults DIR] [--config DIR] [--freshness pd] [--output FILE]
 ```
-- **Quality Scoring**: Priority sources (+3), multi-source (+5), recency (+2), engagement (+1)
-- **Deduplication**: Title similarity detection (85% threshold), domain saturation limits
-- **Previous Digest Penalty**: Avoids repeating articles from recent digests
-- **Output**: Topic-grouped articles with quality scores
+- Auto-detects Brave API rate limit: paid plans → parallel queries, free → sequential
+- Without API: generates search interface for agents
 
-### 6. `validate-config.py` - Configuration Validator
+#### `fetch-github.py` - GitHub Releases Monitor
 ```bash
-python3 scripts/validate-config.py [--defaults DEFAULTS_DIR] [--config CONFIG_DIR] [--verbose]
+python3 scripts/fetch-github.py [--defaults DIR] [--config DIR] [--hours 168] [--output FILE]
 ```
-- **JSON Schema**: Validates structure and required fields
-- **Consistency**: Checks topic references, duplicate IDs
-- **Source Types**: Validates RSS URLs, Twitter handles
+- Parallel fetching (10 workers), 30s timeout
+- Auth priority: `$GITHUB_TOKEN` → GitHub App auto-generate → `gh` CLI → unauthenticated (60 req/hr)
+
+#### `fetch-reddit.py` - Reddit Posts Fetcher
+```bash
+python3 scripts/fetch-reddit.py [--defaults DIR] [--config DIR] [--hours 48] [--output FILE]
+```
+- Parallel fetching (4 workers), public JSON API (no auth required)
+- 13 subreddits with score filtering
+
+#### `merge-sources.py` - Quality Scoring & Deduplication
+```bash
+python3 scripts/merge-sources.py --rss FILE --twitter FILE --web FILE --github FILE --reddit FILE
+```
+- Quality scoring, title similarity dedup (85%), previous digest penalty
+- Output: topic-grouped articles sorted by score
+
+#### `validate-config.py` - Configuration Validator
+```bash
+python3 scripts/validate-config.py [--defaults DIR] [--config DIR] [--verbose]
+```
+- JSON schema validation, topic reference checks, duplicate ID detection
 
 ## User Customization
 

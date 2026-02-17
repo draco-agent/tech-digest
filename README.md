@@ -41,16 +41,20 @@ A quality-scored, deduplicated tech digest built from **131 sources**:
 ### Pipeline
 
 ```
-RSS + Twitter + Web + GitHub + Reddit
+       run-pipeline.py (~30s)
               ↓
-        merge-sources.py
+  RSS ─┐
+  Twitter ─┤
+  Web ─────┤── parallel fetch ──→ merge-sources.py
+  GitHub ──┤
+  Reddit ──┘
               ↓
   Quality Scoring → Deduplication → Topic Grouping
               ↓
     Discord / Email / Markdown output
 ```
 
-**Quality scoring**: priority source (+3), multi-source cross-ref (+5), recency (+2), engagement (+1), Reddit score bonus (+1/+3/+5), already reported (-3).
+**Quality scoring**: priority source (+3), multi-source cross-ref (+5), recency (+2), engagement (+1), Reddit score bonus (+1/+3/+5), already reported (-5).
 
 ## ⚙️ Configuration
 
@@ -63,7 +67,7 @@ RSS + Twitter + Web + GitHub + Reddit
 ```bash
 export X_BEARER_TOKEN="..."    # Twitter API (recommended)
 export BRAVE_API_KEY="..."     # Web search (optional)
-export GITHUB_TOKEN="..."      # GitHub API (optional, higher rate limits)
+export GITHUB_TOKEN="..."      # GitHub API (optional, auto-generated from GitHub App if unset)
 ```
 
 ## 📂 Repository

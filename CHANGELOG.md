@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.4.0
+
+- **Unified Pipeline**: New `run-pipeline.py` runs all 5 fetch steps (RSS, Twitter, GitHub, Reddit, Web) in parallel, then merges — total ~30s vs ~3-4min sequential. Digest prompt updated to use this by default.
+- **Reddit Parallel Fetch**: `fetch-reddit.py` now uses `ThreadPoolExecutor(max_workers=4)` instead of sequential requests with `sleep(1)`
+- **Reddit 403 Fix**: Added explicit `ssl.create_default_context()` and `Accept-Language` header to fix Reddit blocking Python's default `urllib` TLS fingerprint
+- **Brave API Auto-Concurrency**: `fetch-web.py` probes `x-ratelimit-limit` header at startup — paid plans auto-switch to parallel queries, free plans stay sequential
+- **GitHub Auto-Auth**: `fetch-github.py` resolves tokens in priority order: `$GITHUB_TOKEN` → GitHub App auto-generate → `gh` CLI → unauthenticated. No manual token setup needed if GitHub App credentials exist.
+- **Timeout Increase**: All fetch scripts 15s → 30s per HTTP request; pipeline per-step subprocess 120s → 180s
+- **Pipeline Metadata**: `run-pipeline.py` saves `*.meta.json` with per-step timing, counts, and status
+
 ## v3.3.2
 
 - **Declare tools and file access**: Added `tools` (python3 required, gog optional) and `files` (read/write paths) to SKILL.md metadata, addressing VirusTotal "undeclared tools/binaries" and "modify workspace files" audit findings
