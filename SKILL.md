@@ -39,11 +39,11 @@ files:
     - config/defaults/: Default source and topic configurations
     - references/: Prompt templates and output templates
     - scripts/: Python pipeline scripts
-    - <workspace>/archive/tech-digest/: Previous digests for dedup
+    - <workspace>/archive/tech-news-digest/: Previous digests for dedup
   write:
     - /tmp/td-*.json: Temporary pipeline intermediate outputs
     - /tmp/td-email.html: Temporary email HTML body
-    - <workspace>/archive/tech-digest/: Saved digest archives
+    - <workspace>/archive/tech-news-digest/: Saved digest archives
 ---
 
 # Tech News Digest
@@ -71,7 +71,7 @@ Automated tech news digest system with unified data source model, quality scorin
      --defaults config/defaults \
      --config workspace/config \
      --hours 48 --freshness pd \
-     --archive-dir workspace/archive/tech-digest/ \
+     --archive-dir workspace/archive/tech-news-digest/ \
      --output /tmp/td-merged.json --verbose --force
    ```
 
@@ -137,7 +137,7 @@ Automated tech news digest system with unified data source model, quality scorin
 python3 scripts/run-pipeline.py \
   --defaults config/defaults [--config CONFIG_DIR] \
   --hours 48 --freshness pd \
-  --archive-dir workspace/archive/tech-digest/ \
+  --archive-dir workspace/archive/tech-news-digest/ \
   --output /tmp/td-merged.json --verbose --force
 ```
 - **Features**: Runs all 5 fetch steps in parallel, then merges + deduplicates + scores
@@ -284,7 +284,7 @@ python3 scripts/fetch-twitter.py --hours 1 --verbose
 ```
 
 ### Archive Management
-- Digests automatically archived to `<workspace>/archive/tech-digest/`
+- Digests automatically archived to `<workspace>/archive/tech-news-digest/`
 - Previous digest titles used for duplicate detection
 - Old archives cleaned automatically (90+ days)
 

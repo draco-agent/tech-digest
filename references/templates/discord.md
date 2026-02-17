@@ -25,8 +25,9 @@ Discord-optimized format with bullet points and link suppression.
 
 ## Delivery
 
-- **Default: DM** — Send to user via Discord DM (not channel) unless explicitly configured otherwise
-- Use `message` tool with `target` set to user ID for DM delivery
+- **Default: Channel** — Send to the Discord channel specified by `DISCORD_CHANNEL_ID`
+- Use `message` tool with `target` set to the channel ID for channel delivery
+- For DM delivery instead, set `target` to a user ID
 
 ## Discord-Specific Features
 

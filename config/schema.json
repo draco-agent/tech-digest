@@ -13,7 +13,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["rss", "twitter", "web", "github"],
+          "enum": ["rss", "twitter", "web", "github", "reddit"],
           "description": "Source type"
         },
         "name": {

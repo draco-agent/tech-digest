@@ -13,7 +13,7 @@ Usage:
       --defaults <SKILL_DIR>/config/defaults \
       --config <WORKSPACE>/config \
       --hours 48 --freshness pd \
-      --archive-dir <WORKSPACE>/archive/tech-digest/ \
+      --archive-dir <WORKSPACE>/archive/tech-news-digest/ \
       --output /tmp/td-merged.json \
       --verbose
 """

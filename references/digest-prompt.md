@@ -40,7 +40,7 @@ Merge logic: user sources append to defaults (same `id` → user wins); user top
 
 ## Context: Previous Report
 
-Read the most recent archive file from `<WORKSPACE>/archive/tech-digest/` (if any). Use it to:
+Read the most recent archive file from `<WORKSPACE>/archive/tech-news-digest/` (if any). Use it to:
 - **Avoid repeating** news already covered
 - **Follow up** on developing stories with new information only
 - If no previous report exists, skip this step.
@@ -55,7 +55,7 @@ python3 <SKILL_DIR>/scripts/run-pipeline.py \
   --config <WORKSPACE>/config \
   --hours <RSS_HOURS> \
   --freshness <FRESHNESS> \
-  --archive-dir <WORKSPACE>/archive/tech-digest/ \
+  --archive-dir <WORKSPACE>/archive/tech-news-digest/ \
   --output /tmp/td-merged.json \
   --verbose --force
 ```
@@ -127,7 +127,7 @@ python3 <SKILL_DIR>/scripts/merge-sources.py \
   --web /tmp/td-web.json \
   --github /tmp/td-github.json \
   --reddit /tmp/td-reddit.json \
-  --archive-dir <WORKSPACE>/archive/tech-digest/ \
+  --archive-dir <WORKSPACE>/archive/tech-news-digest/ \
   --output /tmp/td-merged.json \
   --verbose
 ```
@@ -185,7 +185,7 @@ At the end of the report, append a stats line showing raw data collected from ea
 ```
 
 ## Archive
-Save the report to `<WORKSPACE>/archive/tech-digest/<MODE>-YYYY-MM-DD.md`
+Save the report to `<WORKSPACE>/archive/tech-news-digest/<MODE>-YYYY-MM-DD.md`
 
 After saving, delete archive files older than 90 days to prevent unbounded growth.
 

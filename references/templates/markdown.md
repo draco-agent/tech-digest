@@ -180,7 +180,7 @@ Bitcoin surged to a new all-time high of $67,000 following the SEC's approval of
 
 ---
 
-**Archive Location:** `workspace/archive/tech-digest/daily-2026-02-15.md`  
+**Archive Location:** `workspace/archive/tech-news-digest/daily-2026-02-15.md`  
 **Next Digest:** 2026-02-16 07:00:00 UTC  
 📊 **Data Sources:** RSS 285 | Twitter 67 | Reddit 45 | Web 60 | GitHub 29 releases | After dedup: 95 articles
 
