@@ -368,13 +368,13 @@ OpenClaw enforces **cross-provider isolation**: a single session can only send m
 
 ```
 # Job 1: Discord + Email
-- DISCORD_CHANNEL_ID = 1470806864412414071
+- DISCORD_CHANNEL_ID = <your-discord-channel-id>
 - EMAIL = user@example.com
 - TEMPLATE = discord
 
 # Job 2: Telegram DM
-- DISCORD_CHANNEL_ID = （无）
-- EMAIL = （无）
+- DISCORD_CHANNEL_ID = (none)
+- EMAIL = (none)
 - TEMPLATE = telegram
 ```
 Replace `DISCORD_CHANNEL_ID` delivery with Telegram delivery in the second job's prompt (use `message` tool with `channel=telegram`).
