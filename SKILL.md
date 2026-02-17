@@ -269,13 +269,6 @@ pip install -r requirements.txt
 
 **All scripts work with Python 3.8+ standard library only.**
 
-## Migration from v1.x
-
-1. **Config Migration**: Old config files are automatically migrated to new structure
-2. **Script Updates**: New command-line interfaces with better error handling
-3. **Template System**: Replace old prompt-based generation with template system
-4. **Quality Scoring**: New scoring system affects article ranking
-
 ## Monitoring & Operations
 
 ### Health Checks
