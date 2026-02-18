@@ -58,12 +58,12 @@ else
 fi
 
 # Merge
-MERGE_ARGS="--output $OUTDIR/merged.json"
-[ -f "$OUTDIR/rss.json" ] && MERGE_ARGS="$MERGE_ARGS --rss $OUTDIR/rss.json"
-[ -f "$OUTDIR/twitter.json" ] && MERGE_ARGS="$MERGE_ARGS --twitter $OUTDIR/twitter.json"
-[ -f "$OUTDIR/web.json" ] && MERGE_ARGS="$MERGE_ARGS --web $OUTDIR/web.json"
-[ -f "$OUTDIR/github.json" ] && MERGE_ARGS="$MERGE_ARGS --github $OUTDIR/github.json"
-run_step "merge-sources" python3 "$SCRIPT_DIR/merge-sources.py" $MERGE_ARGS
+MERGE_ARGS=("--output" "$OUTDIR/merged.json")
+[ -f "$OUTDIR/rss.json" ] && MERGE_ARGS+=("--rss" "$OUTDIR/rss.json")
+[ -f "$OUTDIR/twitter.json" ] && MERGE_ARGS+=("--twitter" "$OUTDIR/twitter.json")
+[ -f "$OUTDIR/web.json" ] && MERGE_ARGS+=("--web" "$OUTDIR/web.json")
+[ -f "$OUTDIR/github.json" ] && MERGE_ARGS+=("--github" "$OUTDIR/github.json")
+run_step "merge-sources" python3 "$SCRIPT_DIR/merge-sources.py" "${MERGE_ARGS[@]}"
 validate_json "$OUTDIR/merged.json" "merged"
 
 # Validate merged structure
