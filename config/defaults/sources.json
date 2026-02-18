@@ -560,7 +560,7 @@
       "id": "langchain-twitter",
       "type": "twitter",
       "name": "LangChain official",
-      "handle": "LangChainAI",
+      "handle": "LangChain",
       "enabled": true,
       "priority": false,
       "topics": [
