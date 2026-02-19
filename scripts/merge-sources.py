@@ -27,7 +27,10 @@ from urllib.parse import urlparse
 SCORE_MULTI_SOURCE = 5      # Article appears in multiple sources
 SCORE_PRIORITY_SOURCE = 3   # From high-priority source
 SCORE_RECENT = 2            # Recent article (< 24h)
-SCORE_ENGAGEMENT = 1        # High social engagement (Twitter)
+SCORE_ENGAGEMENT_VIRAL = 5   # Viral tweet (1000+ likes or 500+ RTs)
+SCORE_ENGAGEMENT_HIGH = 3    # High engagement (500+ likes or 200+ RTs)
+SCORE_ENGAGEMENT_MED = 2     # Medium engagement (100+ likes or 50+ RTs)
+SCORE_ENGAGEMENT_LOW = 1     # Some engagement (50+ likes or 20+ RTs)
 PENALTY_DUPLICATE = -10     # Duplicate/very similar title
 PENALTY_OLD_REPORT = -5     # Already in previous digest
 
@@ -110,15 +113,20 @@ def calculate_base_score(article: Dict[str, Any], source: Dict[str, Any]) -> flo
     except Exception:
         pass
     
-    # Twitter engagement bonus
+    # Twitter engagement bonus (tiered)
     if source.get("source_type") == "twitter" and "metrics" in article:
         metrics = article["metrics"]
         likes = metrics.get("like_count", 0)
         retweets = metrics.get("retweet_count", 0)
         
-        # High engagement bonus
-        if likes > 100 or retweets > 50:
-            score += SCORE_ENGAGEMENT
+        if likes >= 1000 or retweets >= 500:
+            score += SCORE_ENGAGEMENT_VIRAL
+        elif likes >= 500 or retweets >= 200:
+            score += SCORE_ENGAGEMENT_HIGH
+        elif likes >= 100 or retweets >= 50:
+            score += SCORE_ENGAGEMENT_MED
+        elif likes >= 50 or retweets >= 20:
+            score += SCORE_ENGAGEMENT_LOW
             
     return score
 
