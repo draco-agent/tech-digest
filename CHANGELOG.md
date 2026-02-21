@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.6.0
+
+- Simplify digest-prompt: 232→122 lines (-47%), remove fallback scripts block, merge redundant rules
+- Add optional `<EMAIL_FROM>` placeholder for sender display name
+- Add "Environment vs Code" separation rule to CONTRIBUTING.md
+
 ## v3.5.1
 
 - Email delivery: prefer `mail` (msmtp) over `gog`, remove redundant fallback options
