@@ -41,6 +41,12 @@ references/       — digest-prompt.md, output templates
 scripts/          — Python pipeline scripts
 ```
 
+## Environment vs Code
+
+- **Never push environment-specific config to repo** — email sender names, API keys, file paths, channel IDs, timezone settings, etc. belong in local workspace config or env vars, not in skill code
+- Repo code uses `<PLACEHOLDER>` patterns; actual values are substituted at runtime
+- Local overrides go in `workspace/config/`, not in `config/defaults/`
+
 ## Git Workflow
 
 - Commit messages: concise English, describe what changed
