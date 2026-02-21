@@ -198,6 +198,7 @@ After saving, delete archive files older than 90 days to prevent unbounded growt
 ## Delivery
 1. Send to Discord channel `<DISCORD_CHANNEL_ID>` via `message` tool
 2. *(Optional)* Send email to `<EMAIL>` — try `mail` (msmtp) first, fall back to `gog`
+   - **Email must contain ALL the same items as Discord** — do not abbreviate or skip sections
    - Generate HTML email body following `<SKILL_DIR>/references/templates/email.md` format (inline styles, max-width 640px, system fonts)
    - Write HTML body to `/tmp/td-email.html` first
    - **Option A: `mail` (msmtp)** — preferred if available:
