@@ -18,6 +18,7 @@ Unified template for both daily and weekly digests. Replace `<...>` placeholders
 | `<SKILL_DIR>` | Path to the installed skill directory | Path to the installed skill directory |
 | `<DISCORD_CHANNEL_ID>` | Target channel ID | Target channel ID |
 | `<EMAIL>` | *(optional)* Recipient email | *(optional)* Recipient email |
+| `<EMAIL_FROM>` | *(optional)* Sender display name, e.g. `MyBot <bot@example.com>` | *(optional)* Same |
 | `<LANGUAGE>` | `Chinese` (default) | `Chinese` (default) |
 | `<TEMPLATE>` | `discord` / `email` / `markdown` | `discord` / `email` / `markdown` |
 | `<DATE>` | Today's date in YYYY-MM-DD (caller provides) | Today's date in YYYY-MM-DD (caller provides) |
@@ -204,6 +205,10 @@ After saving, delete archive files older than 90 days to prevent unbounded growt
    - **Option A: `mail` (msmtp)** — preferred if available:
      ```bash
      mail -a "Content-Type: text/html; charset=UTF-8" -s '<SUBJECT>' '<EMAIL>' < /tmp/td-email.html
+     ```
+     If `<EMAIL_FROM>` is set, add `-a "From: <EMAIL_FROM>"` before `-s`:
+     ```bash
+     mail -a "Content-Type: text/html; charset=UTF-8" -a "From: <EMAIL_FROM>" -s '<SUBJECT>' '<EMAIL>' < /tmp/td-email.html
      ```
    - **Option B: `gog` CLI** — fallback:
      ```bash
