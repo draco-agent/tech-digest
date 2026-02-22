@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.6.3
+
+- Add GitHub source: zeroclaw-labs/zeroclaw (137→138 total, 27→28 GitHub)
+
 ## v3.6.2
 
 - Add 3 GitHub sources: cloudflare/moltworker, sipeed/picoclaw, HKUDS/nanobot (134→137 total, 24→27 GitHub)

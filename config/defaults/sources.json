@@ -1729,6 +1729,18 @@
         "ai-agent"
       ],
       "note": "HKUDS NanoBot AI agent project"
+    },
+    {
+      "id": "zeroclaw-github",
+      "type": "github",
+      "name": "ZeroClaw",
+      "repo": "zeroclaw-labs/zeroclaw",
+      "enabled": true,
+      "priority": false,
+      "topics": [
+        "crypto"
+      ],
+      "note": "ZeroClaw Labs project"
     }
   ]
 }
