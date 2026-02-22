@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.6.1
+
+- Prompt review & optimization pass (no functional changes)
+
 ## v3.6.0
 
 - Simplify digest-prompt: 232→122 lines (-47%), remove fallback scripts block, merge redundant rules
