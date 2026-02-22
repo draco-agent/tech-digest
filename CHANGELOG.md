@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.6.2
+
+- Add 3 GitHub sources: cloudflare/moltworker, sipeed/picoclaw, HKUDS/nanobot (134→137 total, 24→27 GitHub)
+
 ## v3.6.1
 
 - Prompt review & optimization pass (no functional changes)
